@@ -22,16 +22,21 @@ public class TimeSlotService {
 		return timeSlotRep.findAll();
 	}
 	
-	public List<TimeSlot> getTimeSlotByModule(String module){
+	public List<TimeSlot> getTimeSlotByName(String module){
 		return timeSlotRep.findAll().stream()
-				.filter(timeslot -> module.equals(timeslot.getModule()))
+				.filter(timeslot -> module.equals(timeslot.getName()))
 				.collect(Collectors.toList());
-			
 	}
 	
 	public List<TimeSlot> getTimeSlotBySlotID(int slotid){
 		return timeSlotRep.findAll().stream()
 				.filter(timeslot -> timeslot.getSlotid() == slotid )
+				.collect(Collectors.toList());
+	}
+	
+	public List<TimeSlot> getTimeSlotByImported(boolean imported ){
+		return timeSlotRep.findAll().stream()
+				.filter(timeslot -> timeslot.getImported() == imported)
 				.collect(Collectors.toList());
 	}
 	

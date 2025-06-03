@@ -19,18 +19,21 @@ public class TimeSlot {
 	
 	private LocalDateTime slotend;
 	
-	private String module;
+	private String name;
 	
-	private boolean available;
+	private boolean imported;
+	
+	private boolean sessionUsed;
 	
 	
-	public TimeSlot(int slotid, LocalDateTime slotstart, LocalDateTime slotend, String module, boolean available) {
+	public TimeSlot(int slotid, LocalDateTime slotstart, LocalDateTime slotend, String name, boolean imported, boolean sessionUsed) {
 		
 		this.slotid = slotid;
 		this.slotstart = slotstart;
 		this.slotend = slotend;
-		this.module = module;
-		this.available = available;
+		this.name = name;
+		this.imported = imported;
+		this.sessionUsed = sessionUsed;
 	}
 
 	public TimeSlot() {
@@ -67,23 +70,31 @@ public class TimeSlot {
 	}
 
 
-	public String getModule() {
-		return module;
+	public String getName() {
+		return name;
 	}
 
 
-	public void setModule(String module) {
-		this.module = module;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 
-	public boolean isAvailable() {
-		return available;
+	public boolean getImported() {
+		return imported;
 	}
 
 
-	public void setAvailable(boolean available) {
-		this.available = available;
+	public void setImported(boolean imported) {
+		this.imported = imported;
+	}
+	
+	public boolean getSessionUsed() {
+		return sessionUsed;
+	}
+
+	public void setSessionUsed(boolean sessionUsed) {
+		this.sessionUsed = sessionUsed;
 	}
 	
 	

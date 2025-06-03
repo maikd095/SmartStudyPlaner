@@ -15,28 +15,31 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.smartstudy.calenderImport.calenderImportService;
+
 @RestController
-@RequestMapping(path = "/")
+@RequestMapping(path = "/events")
 public class TimeSlotController {
 	private final TimeSlotService timeSlotService;
+	private final calenderImportService calenderImportService;
 	
 	@Autowired
-	public TimeSlotController(TimeSlotService timeSlotService) {
+	public TimeSlotController(TimeSlotService timeSlotService, calenderImportService calenderImportService) {
 		this.timeSlotService = timeSlotService;
+		this.calenderImportService = calenderImportService;
 	}
 	
 	@GetMapping
 	public List<TimeSlot> getTimeSlots(
 			@RequestParam(required = false) Integer slotid,
-			@RequestParam(required = false) String module){
+			@RequestParam(required = false) String name){
 		if (slotid != null) {
 			return timeSlotService.getTimeSlotBySlotID(slotid);
-		} else if (module != null) {
-			return timeSlotService.getTimeSlotByModule(module);
+		} else if (name != null) {
+			return timeSlotService.getTimeSlotByName(name);
 		} else {
 			return timeSlotService.getAllTimeSlots();
 		}
-		
 	}
 	
 	@PostMapping
@@ -46,7 +49,7 @@ public class TimeSlotController {
 	}
 	
 	@DeleteMapping("/{slotid}")
-	public ResponseEntity<String> deleteTimeSlot( @PathVariable int slotid) {
+	public ResponseEntity<String> deleteTimeSlot(@PathVariable int slotid) {
 		timeSlotService.deleteTimeSlot(slotid);
 		return new ResponseEntity<>("TimeSlot successfully deleted", HttpStatus.OK);
 	}
@@ -55,13 +58,12 @@ public class TimeSlotController {
 	@PostMapping("/import")
 	public ResponseEntity<String> importICS(@RequestParam("file") MultipartFile file) {
 		
-		try {
-			//List<TimeSlot> timeSlots = calenderImportService.parseICS(file.getInputStream());
-			
+		try {	
+			List<TimeSlot> timeSlots = calenderImportService.parseICS(file.getInputStream());
+			return ResponseEntity.ok("Import worked, TimeSlots added: " + timeSlots.size());
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Import Failed: " + e.getMessage());
 		}
-		return null;
 		
 	}
 	
