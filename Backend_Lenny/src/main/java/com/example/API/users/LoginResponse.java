@@ -7,7 +7,6 @@ public class LoginResponse {
     private String lastName;
     private String token;
 
-    // Standard Konstruktor
     public LoginResponse() {
     }
 

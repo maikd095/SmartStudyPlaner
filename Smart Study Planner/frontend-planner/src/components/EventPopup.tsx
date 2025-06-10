@@ -14,10 +14,12 @@ interface EventPopupProps {
 
 const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCreated }) => {
     const [title, setTitle] = useState("");
-    const [date, setDate] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
     const [eventType, setEventType] = useState("study");
+    const [isFullDay, setIsFullDay] = useState(false);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
     // Standardwerte beim Öffnen
@@ -25,12 +27,33 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
         if (open) {
             // Aktuelles Datum als Standardwert
             const today = new Date().toISOString().split('T')[0];
-            setDate(today);
+            setStartDate(today);
+            setEndDate(today);
             setStartTime("09:00");
             setEndTime("10:00");
+            setIsFullDay(false);
             setFormErrors({});
         }
     }, [open]);
+
+    // Endzeit automatisch anpassen wenn Startzeit geändert wird
+    useEffect(() => {
+        if (startTime) {
+            const [hours, minutes] = startTime.split(':').map(Number);
+            const endHours = hours + 1;
+            const endTimeStr = `${endHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            if (endHours < 24) {
+                setEndTime(endTimeStr);
+            }
+        }
+    }, [startTime]);
+
+    // Enddatum automatisch anpassen wenn Startdatum geändert wird
+    useEffect(() => {
+        if (startDate && (!endDate || new Date(endDate) < new Date(startDate))) {
+            setEndDate(startDate);
+        }
+    }, [startDate]);
 
     // Validierung der Eingaben
     const validateForm = () => {
@@ -40,25 +63,35 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
             errors.title = "Bitte geben Sie einen Titel ein.";
         }
 
-        if (!date) {
-            errors.date = "Bitte wählen Sie ein Datum.";
+        if (!startDate) {
+            errors.startDate = "Bitte wählen Sie ein Startdatum.";
         }
 
-        if (!startTime) {
-            errors.startTime = "Bitte wählen Sie eine Startzeit.";
+        if (!endDate) {
+            errors.endDate = "Bitte wählen Sie ein Enddatum.";
         }
 
-        if (!endTime) {
-            errors.endTime = "Bitte wählen Sie eine Endzeit.";
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            errors.dateRange = "Das Startdatum muss vor oder am Enddatum liegen.";
         }
 
-        // Überprüfung, ob Startzeit vor Endzeit liegt
-        if (startTime && endTime) {
-            const [startHour, startMinute] = startTime.split(':').map(Number);
-            const [endHour, endMinute] = endTime.split(':').map(Number);
+        if (!isFullDay) {
+            if (!startTime) {
+                errors.startTime = "Bitte wählen Sie eine Startzeit.";
+            }
 
-            if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
-                errors.timeRange = "Die Startzeit muss vor der Endzeit liegen.";
+            if (!endTime) {
+                errors.endTime = "Bitte wählen Sie eine Endzeit.";
+            }
+
+            // Überprüfung der Zeiten nur wenn es ein eintägiges Event ist
+            if (startDate && endDate && startDate === endDate && startTime && endTime) {
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const [endHour, endMinute] = endTime.split(':').map(Number);
+
+                if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
+                    errors.timeRange = "Die Startzeit muss vor der Endzeit liegen.";
+                }
             }
         }
 
@@ -67,21 +100,34 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
     };
 
     const handleCreateEvent = () => {
-        console.log("Aktuelle Formularwerte:", { title, date, startTime, endTime, eventType });
+        console.log("Aktuelle Formularwerte:", { title, startDate, endDate, startTime, endTime, eventType, isFullDay });
 
         if (!validateForm()) {
-            // Zeige Fehler
             const errorMessage = Object.values(formErrors).join("\n");
             alert(errorMessage || "Bitte füllen Sie alle Felder korrekt aus.");
             return;
         }
 
+        // Nutzer-ID aus dem localStorage holen
+        const storedUser = localStorage.getItem("user");
+        if (!storedUser) {
+            alert("Fehlende Nutzerinformationen. Bitte erneut einloggen.");
+            return;
+        }
+
+        const user = JSON.parse(storedUser);
+
         const newEvent = {
             title: title.trim(),
-            date,
-            startTime,
-            endTime,
-            type: eventType
+            startDate: startDate,
+            endDate: endDate,
+            startTime: isFullDay ? null : startTime,
+            endTime: isFullDay ? null : endTime,
+            type: eventType,
+            isFullDay: isFullDay,
+            user: {
+                id: user.id
+            }
         };
 
         console.log("Sende Event an Backend:", newEvent);
@@ -107,7 +153,8 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
             .then(data => {
                 console.log("Event erfolgreich erstellt:", data);
                 setTitle("");
-                setDate("");
+                setStartDate("");
+                setEndDate("");
                 setStartTime("");
                 setEndTime("");
                 setEventType("study");
@@ -151,21 +198,38 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                                 />
                                 {formErrors.title && <p className="text-xs text-red-500 mt-1">{formErrors.title}</p>}
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                                <div className="relative">
-                                    <input
-                                        type="date"
-                                        className={`w-full pl-10 py-2 border rounded-md ${formErrors.date ? "border-red-500" : "border-gray-300"}`}
-                                        value={date}
-                                        onChange={(e) => {
-                                            console.log("Date selected:", e.target.value);
-                                            setDate(e.target.value);
-                                        }}
-                                    />
-                                    <Calendar size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                                    {formErrors.date && <p className="text-xs text-red-500 mt-1">{formErrors.date}</p>}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                    <div className="relative">
+                                        <input
+                                            type="date"
+                                            className={`w-full pl-10 py-2 border rounded-md ${formErrors.date ? "border-red-500" : "border-gray-300"}`}
+                                            value={startDate}
+                                            onChange={(e) => {
+                                                console.log("Date selected:", e.target.value);
+                                                setStartDate(e.target.value);
+                                            }}
+                                        />
+                                        <Calendar size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                                        {formErrors.date && <p className="text-xs text-red-500 mt-1">{formErrors.date}</p>}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                                    <div className="relative">
+                                        <input
+                                            type="date"
+                                            className={`w-full pl-10 py-2 border rounded-md ${formErrors.date ? "border-red-500" : "border-gray-300"}`}
+                                            value={endDate}
+                                            onChange={(e) => {
+                                                console.log("Date selected:", e.target.value);
+                                                setEndDate(e.target.value);
+                                            }}
+                                        />
+                                        <Calendar size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                                        {formErrors.date && <p className="text-xs text-red-500 mt-1">{formErrors.date}</p>}
+                                    </div>
                                 </div>
                             </div>
 
