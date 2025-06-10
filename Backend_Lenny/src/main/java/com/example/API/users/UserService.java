@@ -25,7 +25,7 @@ public class UserService {
             User user = userOptional.get();
 
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                // Generiere ein einfaches Token (in der Praxis würde man hier JWT verwenden)
+                // Generiere ein einfachen Token
                 String token = UUID.randomUUID().toString();
 
                 return new LoginResponse(

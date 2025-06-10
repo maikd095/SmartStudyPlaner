@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 
 interface SignInScreenProps {
   onLogin: () => void;
+  onSwitchToRegister: () => void;
 }
 
-const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin }) => {
+const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin, onSwitchToRegister }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,21 +23,19 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
+        ,
       });
 
       if (response.ok) {
         const data = await response.json();
-        // Speichern Sie das Token und Benutzerinformationen
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify({
           id: data.userId,
           email: data.email,
           firstName: data.firstName,
-          lastName: data.lastName
+          lastName: data.lastName,
         }));
-
-        // Rufen Sie die onLogin-Funktion auf
         onLogin();
       } else {
         const errorData = await response.text();
@@ -61,9 +60,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin }) => {
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-700">
-              Email
-            </Label>
+            <Label htmlFor="email" className="text-gray-700">Email</Label>
             <Input
               type="email"
               id="email"
@@ -75,9 +72,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-gray-700">
-              Password
-            </Label>
+            <Label htmlFor="password" className="text-gray-700">Password</Label>
             <Input
               type="password"
               id="password"
@@ -94,11 +89,14 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin }) => {
           >
             Login
           </Button>
+
+          <div className="text-sm text-center pt-2">
+            Dont' have an account? <button type="button" className="text-[#002366] underline" onClick={onSwitchToRegister}>Register</button>
+          </div>
         </form>
       </div>
     </div>
   );
 };
-
 
 export default SignInScreen;
