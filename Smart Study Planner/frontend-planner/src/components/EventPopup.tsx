@@ -281,7 +281,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                                         <SelectItem value="study">Study</SelectItem>
                                         <SelectItem value="meeting">Meeting</SelectItem>
                                         <SelectItem value="deadline">Deadline</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
+                                        <SelectItem value="learning session">Learning Session</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
