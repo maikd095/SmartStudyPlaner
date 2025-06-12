@@ -5,6 +5,7 @@ import AppSideBar, { SidebarPage } from "@/components/ui/SideBar";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import type { AppPage } from "../MainContainer";
 import EventPopup from "@/components/EventPopup";
+import ModulePopup from "@/components/ModulePopup";
 
 interface CalendarViewProps {
   onLogout: () => void;
@@ -19,6 +20,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isEventPopupOpen, setIsEventPopupOpen] = useState(false);
+  const [isModulePopupOpen, setIsModulePopupOpen] = useState(false);
   const [viewType, setViewType] = useState<ViewType>('month');
 
   const fetchEvents = () => {
@@ -394,6 +396,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold">Calendar</h2>
           <div className="flex space-x-4">
+            <Button
+              onClick={() => setIsModulePopupOpen(true)}
+              className="bg-[#002366] text-white hover:bg-[#001a4d]"
+            >
+              + Add Module
+            </Button>
             {/* View Type Buttons */}
             <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
               {(['day', 'week', 'month'] as ViewType[]).map((view) => (
@@ -483,6 +491,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
       </div>
 
       <EventPopup open={isEventPopupOpen} onOpenChange={setIsEventPopupOpen} onEventCreated={fetchEvents} />
+      <ModulePopup open={isModulePopupOpen} onOpenChange={setIsModulePopupOpen} onModuleCreated={fetchEvents} />
     </div>
   );
 };

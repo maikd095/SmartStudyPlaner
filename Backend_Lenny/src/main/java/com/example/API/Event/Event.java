@@ -3,6 +3,7 @@ package com.example.API.Event;
 import com.example.API.users.User;
 import jakarta.persistence.*;
 
+//Nutzung von LocalDate & LocalTime da besser nutzbar
 import java.time.LocalDate;
 import java.time.LocalTime;
 
