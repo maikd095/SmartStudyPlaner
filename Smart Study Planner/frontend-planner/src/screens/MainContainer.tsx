@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import Dashboard from "./dashboard/dashboard";
 import SignInScreen from "./signinscreen/signinscreen";
+import RegisterScreen from "./registerscreen/register";
 import CalendarView from "./calendar";
+import Settings from "./settings/settings";
+import FocusMode from "./focus/focusmode";
+import Statistics from "./statistics/statistics";
 
-// Definiere die möglichen Seiten in der App
-export type AppPage = "dashboard" | "calendar" | "statistics" | "progress" | "settings";
+export type AppPage = "dashboard" | "calendar" | "focus" | "statistics" | "progress" | "settings";
 
 const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState<AppPage>("dashboard");
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -22,17 +26,37 @@ const MainContainer: React.FC = () => {
     setCurrentPage(page);
   };
 
-  // Wenn nicht eingeloggt, zeige Login-Screen
   if (!isLoggedIn) {
-    return <SignInScreen onLogin={handleLogin} />;
+    return authMode === "login" ? (
+      <SignInScreen
+        onLogin={handleLogin}
+        onSwitchToRegister={() => setAuthMode("register")}
+      />
+    ) : (
+      <RegisterScreen
+        onRegisterSuccess={() => setAuthMode("login")}
+        onSwitchToLogin={() => setAuthMode("login")}
+      />
+    );
   }
 
-  // Wenn eingeloggt, zeige die entsprechende Seite
   return (
     <>
-      {currentPage === "dashboard" && <Dashboard onLogout={handleLogout} onPageChange={handlePageChange} />}
-      {currentPage === "calendar" && <CalendarView onLogout={handleLogout} onPageChange={handlePageChange} />}
-      {/* Weitere Seiten hier hinzufügen */}
+      {currentPage === "dashboard" && (
+        <Dashboard onLogout={handleLogout} onPageChange={handlePageChange} />
+      )}
+      {currentPage === "calendar" && (
+        <CalendarView onLogout={handleLogout} onPageChange={handlePageChange} />
+      )}
+      {currentPage === "focus" && (
+        <FocusMode onLogout={handleLogout} onPageChange={handlePageChange} />
+      )}
+      {currentPage === "statistics" && (
+        <Statistics onLogout={handleLogout} onPageChange={handlePageChange} />
+      )}
+      {currentPage === "settings" && (
+        <Settings onLogout={handleLogout} onPageChange={handlePageChange} />
+      )}
     </>
   );
 };

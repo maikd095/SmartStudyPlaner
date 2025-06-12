@@ -1,9 +1,9 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Calendar, BarChart2, Clock, Settings, LogOut } from "lucide-react";
+import { Home, Calendar, BarChart2, Clock, Settings, LogOut, Lock } from "lucide-react";
 
-// Definiere die möglichen Seitenoptionen
-export type SidebarPage = "dashboard" | "calendar" | "statistics" | "progress" | "settings";
+// Definiere die möglichen Seitenoptionen - Focus Mode hinzugefügt
+export type SidebarPage = "dashboard" | "calendar" | "focus" | "statistics" | "progress" | "settings";
 
 interface AppSideBarProps {
   activePage: SidebarPage;
@@ -18,10 +18,11 @@ const AppSideBar: React.FC<AppSideBarProps> = ({
   userName = "Max",
   onLogout
 }) => {
-  // Navigation-Items mit Icons und Labels
+  // Navigation-Items mit Icons und Labels - Focus Mode hinzugefügt
   const navItems = [
     { id: "dashboard" as SidebarPage, label: "Dashboard", icon: <Home size={18} /> },
     { id: "calendar" as SidebarPage, label: "Calendar View", icon: <Calendar size={18} /> },
+    { id: "focus" as SidebarPage, label: "Focus Mode", icon: <Lock size={18} /> },
     { id: "statistics" as SidebarPage, label: "Statistics", icon: <BarChart2 size={18} /> },
     { id: "progress" as SidebarPage, label: "Progress", icon: <Clock size={18} /> },
     { id: "settings" as SidebarPage, label: "Settings", icon: <Settings size={18} /> }
@@ -36,11 +37,10 @@ const AppSideBar: React.FC<AppSideBarProps> = ({
             <Button
               key={item.id}
               onClick={() => onPageChange(item.id)}
-              className={`justify-start w-full ${
-                activePage === item.id
+              className={`justify-start w-full ${activePage === item.id
                   ? "bg-white text-[#002366] font-semibold shadow-sm"
                   : "text-white border-white hover:text-[#002366] hover:bg-white"
-              }`}
+                }`}
               variant={activePage === item.id ? "ghost" : "outline"}
             >
               <span className="mr-2">{item.icon}</span> {item.label}
@@ -49,7 +49,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({
         </nav>
       </div>
       <div>
-        <Button 
+        <Button
           onClick={onLogout}
           className="w-full font-bold bg-white text-red-500 hover:bg-red-100"
         >

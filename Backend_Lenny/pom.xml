@@ -34,7 +34,6 @@
     </dependency>
 
 
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
@@ -54,10 +53,24 @@
       <version>3.4.2</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.mnode.ical4j</groupId>
+      <artifactId>ical4j</artifactId>
+      <version>4.0.0</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.optaplanner</groupId>
+      <artifactId>optaplanner-spring-boot-starter</artifactId>
+      <version>9.44.0.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
   </dependencies>
-
-
-
 
 
   <build>
@@ -68,4 +81,7 @@
       </plugin>
     </plugins>
   </build>
+
+
+
 </project>

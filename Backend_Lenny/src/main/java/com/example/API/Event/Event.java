@@ -1,11 +1,16 @@
 package com.example.API.Event;
 
+import com.example.API.users.User;
 import jakarta.persistence.*;
+
+//Nutzung von LocalDate & LocalTime da besser nutzbar
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
+@Table(name = "event") // Name deiner Tabelle in der Datenbank
 public class Event {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,8 +19,11 @@ public class Event {
 
     private String type;
 
-    @Column(name = "Date")  // Match the database column name
-    private LocalDate date;
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
     @Column(name = "start_time")
     private LocalTime startTime;
@@ -23,22 +31,86 @@ public class Event {
     @Column(name = "end_time")
     private LocalTime endTime;
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Column(name = "isFullDay")
+    private Boolean isFullDay = false;
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    // Standard-Konstruktor
+    public Event() {
+    }
 
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    // Getter & Setter
+    public Long getId() {
+        return id;
+    }
 
-    public LocalTime getStartTime() { return startTime; }
-    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
+    public String getTitle() {
+        return title;
+    }
 
-    public LocalTime getEndTime() { return endTime; }
-    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+
+
+    public Boolean getIsFullDay() {
+        return isFullDay != null ? isFullDay : false;
+    }
+
+    public void setIsFullDay(Boolean isFullDay) {
+        this.isFullDay = isFullDay;
+    }
+
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
 }
