@@ -50,14 +50,14 @@ public class UserController {
 
     @GetMapping("/settings")
     public ResponseEntity<User> getAllSettingsForUser(@RequestParam Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/settings")
     public ResponseEntity<?> updateUserSettings(@RequestBody User userInput) {
-        Optional<User> optionalUser = userRepository.findById(userInput.getId());
+        Optional<User> optionalUser = userRepository.findByUserId(userInput.getUserId());
 
         if (optionalUser.isEmpty()) {
             return ResponseEntity.notFound().build();

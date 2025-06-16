@@ -57,8 +57,8 @@ public class EventController {
     }
 
     @PostMapping("/learningScheduler")
-    public int createLearningSessions(@RequestParam Event event){
-        return 0;
+    public ResponseEntity<Void> createLearningSessions(@RequestParam Event event){
+        return ResponseEntity.ok().build();
     }
 
 

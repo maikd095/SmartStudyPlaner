@@ -4,7 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cb2d81e-78f0-4e67-bc5c-5974c853ed89" name="Changes" comment="Add initial backend setup for calendar application&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse." />
+    <list default="true" id="7cb2d81e-78f0-4e67-bc5c-5974c853ed89" name="Changes" comment="Add initial backend setup for calendar application&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse.">
+      <change afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Module/Module.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Module/ModuleRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/PlannerService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/TaskPlanningController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Event/EventController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Event/EventController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/Constraints.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/Constraints.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/SmartPlannerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/SmartPlannerMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/users/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/Event/CalendarImportService.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/Event/CalendarImportService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/Event/EventController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/Event/EventController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/Scheduler/SmartPlannerMain.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/Scheduler/SmartPlannerMain.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/config/SecurityConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/UserRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/UserRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/target/classes/com/example/API/users/UserService.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,7 +49,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Backend_Lenny_New" />
+        <entry key="$PROJECT_DIR$" value="Backend_Lenny" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -47,13 +69,13 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "640",
-    "RequestMappingsPanelWidth1": "639",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.CalendarApplication.executor": "Run",
     "Spring Boot.SmartStudyPlannerApplication.executor": "Run",
-    "git-widget-placeholder": "Lenny__Backend__New",
+    "git-widget-placeholder": "Backend__Lenny",
     "last_opened_file_path": "/Users/lennyschulze/Documents/Frankfurt School/Semester 4/Systems Development/Programme",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -180,6 +202,7 @@
       <workItem from="1746917048899" duration="15725000" />
       <workItem from="1749457227246" duration="25817000" />
       <workItem from="1749593363253" duration="8614000" />
+      <workItem from="1749755889923" duration="8760000" />
     </task>
     <task id="LOCAL-00001" summary="Erster Versuch">
       <option name="closed" value="true" />
