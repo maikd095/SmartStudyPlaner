@@ -159,11 +159,11 @@ public class User {
         this.darkMode = darkMode;
     }
 
-    public Long getId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setId(Long user_id) {
+    public void setUserId(Long user_id) {
         this.userId = user_id;
     }
 

@@ -29,7 +29,7 @@ public class UserService {
                 String token = UUID.randomUUID().toString();
 
                 return new LoginResponse(
-                        user.getId(),
+                        user.getUserId(),
                         user.getEmail(),
                         user.getFirstName(),
                         user.getLastName(),
