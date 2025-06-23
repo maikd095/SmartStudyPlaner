@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AppSideBar, { SidebarPage } from "@/components/ui/SideBar";
@@ -6,6 +6,8 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import type { AppPage } from "../MainContainer";
 import EventPopup from "@/components/EventPopup";
 import ModulePopup from "@/components/ModulePopup";
+import EditEventPopup from "@/components/EditEventPopup";
+import LoadingOverlay from "@/components/LoadingOverlay";
 
 interface CalendarViewProps {
   onLogout: () => void;
@@ -21,41 +23,116 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isEventPopupOpen, setIsEventPopupOpen] = useState(false);
   const [isModulePopupOpen, setIsModulePopupOpen] = useState(false);
+  const [isEditEventPopupOpen, setIsEditEventPopupOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [viewType, setViewType] = useState<ViewType>('month');
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  // Zusätzlicher State für Force-Update
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const fetchEvents = () => {
+  const fetchEvents = useCallback(async (forceUpdate = false) => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return;
     const userId = JSON.parse(storedUser).id;
 
-    fetch(`http://localhost:8080/api/events?userId=${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('Raw data from backend:', data);
-        const converted: CalendarEvent[] = data.map((event: any) => ({
-          id: String(event.id),
-          title: event.title,
-          startDate: event.startDate,
-          endDate: event.endDate,
-          start_time: event.startTime,
-          end_time: event.endTime,
-          type: event.type,
-          isFullDay: event.isFullDay
-        }));
-        console.log('Converted events:', converted);
-        setEvents(converted);
-      })
-      .catch((err) => console.error("Fehler beim Laden der Events:", err));
-  };
+    try {
+      // Cache-busting durch Timestamp
+      const timestamp = new Date().getTime();
+      const response = await fetch(`http://localhost:8080/api/events?userId=${userId}&t=${timestamp}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Raw data from backend:', data);
+
+      const converted: CalendarEvent[] = data.map((event: any) => ({
+        id: String(event.id),
+        title: event.title,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        start_time: event.startTime,
+        end_time: event.endTime,
+        type: event.type,
+        isFullDay: event.isFullDay
+      }));
+
+      console.log('Converted events:', converted);
+
+      // Events setzen und Force-Update wenn gewünscht
+      setEvents(converted);
+
+      if (forceUpdate) {
+        setRefreshKey(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error("Fehler beim Laden der Events:", error);
+    }
+  }, []);
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   const handlePageChange = (page: SidebarPage) => {
     setActivePage(page);
     if (onPageChange) onPageChange(page as AppPage);
   };
+
+  const handleEventClick = (event: CalendarEvent, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering day selection
+    setSelectedEvent(event);
+    setIsEditEventPopupOpen(true);
+  };
+
+  const handleReschedule = async () => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) return;
+    const userId = JSON.parse(storedUser).id;
+
+    setIsRescheduling(true);
+
+    try {
+      console.log("Starting rescheduling process...");
+
+      // API Call zum Schedulen der Learning Sessions
+      const response = await fetch(`http://localhost:8080/api/planning/user/${userId}`, {
+        method: "POST"
+      });
+
+      if (response.ok) {
+        console.log("Learning sessions scheduled successfully");
+
+        // Kurze Pause um sicherzustellen, dass Backend fertig ist
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Events mit Force-Update neu laden
+        await fetchEvents(true);
+        console.log("Events successfully reloaded after rescheduling");
+
+        // Zusätzliches Force-Update der Komponente
+        setRefreshKey(prev => prev + 1);
+        setSelectedDate(new Date());
+      } else {
+        console.error("Failed to schedule learning sessions");
+        const errorText = await response.text();
+        console.error("Error details:", errorText);
+      }
+    } catch (error) {
+      console.error("Reschedule error:", error);
+    } finally {
+      // Loading beenden nach API-Antwort und Event-Reload
+      setIsRescheduling(false);
+    }
+  };
+
+  const handleEventCreated = useCallback(async () => {
+    await fetchEvents(true);
+  }, [fetchEvents]);
+
+  const handleEventUpdated = useCallback(async () => {
+    await fetchEvents(true);
+  }, [fetchEvents]);
 
   const goToPrevious = () => {
     const newDate = new Date(currentDate);
@@ -178,7 +255,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   const timeSlots = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
   const renderTimeBasedView = (days: Date[]) => (
-    <Card className="bg-white border border-gray-300 rounded-2xl overflow-hidden">
+    <Card key={`time-view-${refreshKey}`} className="bg-white border border-gray-300 rounded-2xl overflow-hidden">
       {/* Header mit Wochentagen */}
       <div className={`grid ${viewType === 'day' ? 'grid-cols-2' : 'grid-cols-8'} text-sm font-medium bg-gray-100 border-b border-gray-200`}>
         <div className="p-3 text-center border-r border-gray-200 w-20 flex-shrink-0">
@@ -243,7 +320,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                     return (
                       <div
                         key={event.id}
-                        className={`absolute left-1 right-1 rounded text-xs p-2 overflow-hidden z-10
+                        className={`absolute left-1 right-1 rounded text-xs p-2 overflow-hidden z-10 cursor-pointer hover:opacity-80 transition-opacity
                           ${event.type === 'study' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white'}
                           ${event.isFullDay ? 'font-medium' : ''}
                         `}
@@ -251,6 +328,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                           height: `${height}px`,
                           top: `${topOffset}px`
                         }}
+                        onClick={(e) => handleEventClick(event, e)}
                       >
                         <div className="font-medium truncate">{event.title}</div>
                         {!event.isFullDay && (
@@ -280,7 +358,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
     const selectedDayEvents = getDayEvents(selectedDate);
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div key={`month-view-${refreshKey}`} className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="col-span-2 bg-white border border-gray-300 rounded-2xl overflow-hidden">
           <div className="grid grid-cols-7 text-sm font-medium bg-gray-100">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
@@ -309,9 +387,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                         const isMultiDay = !isSameDay(eventStartDate, eventEndDate);
 
                         return (
-                          <div key={event.id} className={`text-xs p-1 rounded truncate
-                            ${event.type === 'study' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}
-                          `}>
+                          <div
+                            key={event.id}
+                            className={`text-xs p-1 rounded truncate cursor-pointer hover:opacity-80
+                              ${event.type === 'study' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}
+                            `}
+                            onClick={(e) => handleEventClick(event, e)}
+                          >
                             {!event.isFullDay && event.start_time?.slice(0, 5)} {event.title}
                             {isMultiDay && <span className="text-xs opacity-75"> (Multi-day)</span>}
                           </div>
@@ -345,9 +427,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                   const isMultiDay = !isSameDay(eventStartDate, eventEndDate);
 
                   return (
-                    <div key={event.id} className={`p-3 rounded-lg border-l-4
-                      ${event.type === 'study' ? 'border-blue-500 bg-blue-50' : 'border-green-500 bg-green-50'}
-                    `}>
+                    <div
+                      key={event.id}
+                      className={`p-3 rounded-lg border-l-4 cursor-pointer hover:opacity-80 transition-opacity
+                        ${event.type === 'study' ? 'border-blue-500 bg-blue-50' : 'border-green-500 bg-green-50'}
+                      `}
+                      onClick={(e) => handleEventClick(event, e)}
+                    >
                       <div className="font-medium">{event.title}</div>
                       <div className="text-sm text-gray-600">
                         {event.isFullDay ? (
@@ -402,6 +488,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
             >
               + Add Module
             </Button>
+
+            <Button
+              onClick={handleReschedule}
+              className="bg-[#002366] text-white hover:bg-[#001a4d]"
+              disabled={isRescheduling}
+            >
+              {isRescheduling ? 'Rescheduling...' : 'Reschedule'}
+            </Button>
+
             {/* View Type Buttons */}
             <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
               {(['day', 'week', 'month'] as ViewType[]).map((view) => (
@@ -472,7 +567,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                     method: "POST",
                     body: formData
                   });
-                  fetchEvents(); // Lade neue Events nach Import
+                  await handleEventCreated(); // Verwende die neue Callback-Funktion
                 } catch (error) {
                   console.error("Import fehlgeschlagen:", error);
                 }
@@ -490,8 +585,28 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
         )}
       </div>
 
-      <EventPopup open={isEventPopupOpen} onOpenChange={setIsEventPopupOpen} onEventCreated={fetchEvents} />
-      <ModulePopup open={isModulePopupOpen} onOpenChange={setIsModulePopupOpen} onModuleCreated={fetchEvents} />
+      {/* Loading Overlay */}
+      <LoadingOverlay
+        isVisible={isRescheduling}
+        message="Optimizing your study schedule..."
+      />
+
+      <EventPopup
+        open={isEventPopupOpen}
+        onOpenChange={setIsEventPopupOpen}
+        onEventCreated={handleEventCreated}
+      />
+      <ModulePopup
+        open={isModulePopupOpen}
+        onOpenChange={setIsModulePopupOpen}
+        onModuleCreated={handleEventCreated}
+      />
+      <EditEventPopup
+        open={isEditEventPopupOpen}
+        onOpenChange={setIsEditEventPopupOpen}
+        onEventUpdated={handleEventUpdated}
+        event={selectedEvent}
+      />
     </div>
   );
 };
