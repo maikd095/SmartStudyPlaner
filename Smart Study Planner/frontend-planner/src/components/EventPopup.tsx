@@ -117,6 +117,13 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
 
         const user = JSON.parse(storedUser);
 
+        // Prüfe ob userId vorhanden ist
+        const userId = user.userId || user.id;
+        if (!userId) {
+            alert("Keine gültige User-ID gefunden. Bitte erneut einloggen.");
+            return;
+        }
+
         const newEvent = {
             title: title.trim(),
             startDate: startDate,
@@ -126,7 +133,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
             type: eventType,
             isFullDay: isFullDay,
             user: {
-                id: user.id
+                userId: userId  // <- Korrigiert: userId statt id
             }
         };
 
@@ -142,9 +149,9 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                     return response.text().then(text => {
                         try {
                             const json = JSON.parse(text);
-                            throw new Error(json.error || `Server-Fehler: ${response.status}`);
+                            throw new Error(json.error || text || `Server-Fehler: ${response.status}`);
                         } catch (e) {
-                            throw new Error(`Server-Fehler: ${response.status}`);
+                            throw new Error(text || `Server-Fehler: ${response.status}`);
                         }
                     });
                 }
@@ -231,6 +238,19 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                                         {formErrors.date && <p className="text-xs text-red-500 mt-1">{formErrors.date}</p>}
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id="fullDay"
+                                    checked={isFullDay}
+                                    onChange={(e) => setIsFullDay(e.target.checked)}
+                                    className="rounded border-gray-300"
+                                />
+                                <label htmlFor="fullDay" className="text-sm font-medium text-gray-700">
+                                    All Day
+                                </label>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

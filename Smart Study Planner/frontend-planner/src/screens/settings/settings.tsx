@@ -73,7 +73,8 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
         const user = JSON.parse(userData);
 
         const updatedUser = {
-            id: user.id,
+            userId: user.id,
+            email: email,
             firstName,
             lastName,
             prefStartTime: preferredStartTime,

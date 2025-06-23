@@ -18,8 +18,11 @@ public class TaskPlanningController {
 
     @PostMapping("/user/{userId}")
     public ResponseEntity<Void> generateLearningPlan(@PathVariable Long userId) {
-        System.out.println("CONTROLLER WIRD AUFGERUFEN: userId = " + userId);
+        System.out.println("userId = " + userId);
+        planningService.deleteFutureLearningSessions(userId); // Step 1: delete old sessions
         planningService.planForUser(userId);
         return ResponseEntity.ok().build();
     }
+
+
 }
