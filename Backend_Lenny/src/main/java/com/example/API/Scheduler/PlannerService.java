@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PlannerService {
@@ -69,7 +70,11 @@ public class PlannerService {
 
         // Load the fixed events for the user
         List<FixedEvent> fixedEvents = eventRepository.findAllByUser(user).stream()
-                .filter(e -> !e.getType().equals("learning session")) // Get everything besides already scheduled learning sessions
+                .filter(e -> {
+                    // Sicherstellen, dass getType() nicht null ist, bevor equals aufgerufen wird
+                    String type = e.getType();
+                    return type == null || !type.equals("learning session");
+                })
                 .map(e -> {
                     // full day events: No learning sessions
                     if (e.getIsFullDay() != null && e.getIsFullDay()) {

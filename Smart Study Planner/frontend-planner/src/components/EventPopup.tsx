@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, Calendar, CheckSquare, ListTodo } from "lucide-react";
+import { Clock, Calendar, CheckSquare } from "lucide-react";
 
 interface EventPopupProps {
     open: boolean;
@@ -18,7 +17,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
     const [endDate, setEndDate] = useState("");
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
-    const [eventType, setEventType] = useState("study");
     const [isFullDay, setIsFullDay] = useState(false);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
@@ -100,7 +98,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
     };
 
     const handleCreateEvent = () => {
-        console.log("Aktuelle Formularwerte:", { title, startDate, endDate, startTime, endTime, eventType, isFullDay });
+        console.log("Aktuelle Formularwerte:", { title, startDate, endDate, startTime, endTime, isFullDay });
 
         if (!validateForm()) {
             const errorMessage = Object.values(formErrors).join("\n");
@@ -130,7 +128,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
             endDate: endDate,
             startTime: isFullDay ? null : startTime,
             endTime: isFullDay ? null : endTime,
-            type: eventType,
             isFullDay: isFullDay,
             user: {
                 userId: userId  // <- Korrigiert: userId statt id
@@ -164,7 +161,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                 setEndDate("");
                 setStartTime("");
                 setEndTime("");
-                setEventType("study");
                 onOpenChange(false);
                 if (onEventCreated) onEventCreated();
             })
@@ -186,10 +182,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                         <TabsTrigger value="event" className="flex items-center justify-center space-x-2">
                             <CheckSquare size={16} />
                             <span>Calendar Event</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="todo" className="flex items-center justify-center space-x-2">
-                            <ListTodo size={16} />
-                            <span>To-Do</span>
                         </TabsTrigger>
                     </TabsList>
 
@@ -291,20 +283,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                                 <p className="text-xs text-red-500">{formErrors.timeRange}</p>
                             )}
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
-                                <Select onValueChange={setEventType} value={eventType}>
-                                    <SelectTrigger className="w-full border-gray-300 bg-white">
-                                        <SelectValue placeholder="Select event type" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white">
-                                        <SelectItem value="study">Study</SelectItem>
-                                        <SelectItem value="meeting">Meeting</SelectItem>
-                                        <SelectItem value="deadline">Deadline</SelectItem>
-                                        <SelectItem value="learning session">Learning Session</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
 
                             <div className="flex justify-end space-x-2 pt-4">
                                 <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -317,9 +295,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                         </div>
                     </TabsContent>
 
-                    <TabsContent value="todo" className="px-6 pb-6">
-                        <p className="text-sm text-gray-500">To-Do functionality coming soon.</p>
-                    </TabsContent>
+
                 </Tabs>
             </DialogContent>
         </Dialog>

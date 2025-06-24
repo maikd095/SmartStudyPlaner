@@ -126,9 +126,9 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
                                 <SelectValue placeholder="Bitte auswählen" />
                             </SelectTrigger>
                             <SelectContent className="bg-white">
-                                <SelectItem value="leicht">Easy</SelectItem>
-                                <SelectItem value="mittel">Middle</SelectItem>
-                                <SelectItem value="schwer">Hard</SelectItem>
+                                <SelectItem value="easy">Easy</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="hard">Hard</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
