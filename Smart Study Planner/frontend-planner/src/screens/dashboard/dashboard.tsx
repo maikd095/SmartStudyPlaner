@@ -30,6 +30,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, onPageChange }) => {
 
   // Get all events from backend for the user for displaying on the dashboard
   useEffect(() => {
+
     const fetchEvents = async () => {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const response = await fetch(`http://localhost:8080/api/events?userId=${user.id}`);
@@ -56,7 +57,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, onPageChange }) => {
     currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
     currentWeekEnd.setHours(23, 59, 59, 999);
 
-    // Filtering on type = "learning sesison"
+
     const completedLearningSessions = events.filter(event => {
       if (event.type !== "learning session" || event.sessionUsed !== 1) {
         return false;
@@ -125,7 +126,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, onPageChange }) => {
       <AppSideBar
         activePage={activePage}
         onPageChange={handlePageChange}
-        userName="Max"
         onLogout={onLogout}
       />
       <div className="flex-1 bg-[#f2f3f7] p-8 overflow-y-auto">

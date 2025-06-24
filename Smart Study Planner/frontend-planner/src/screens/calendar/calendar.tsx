@@ -321,7 +321,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                       <div
                         key={event.id}
                         className={`absolute left-1 right-1 rounded text-xs p-2 overflow-hidden z-10 cursor-pointer hover:opacity-80 transition-opacity
-                          ${event.type === 'study' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white'}
+                          ${event.type === 'learning session' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white'}
                           ${event.isFullDay ? 'font-medium' : ''}
                         `}
                         style={{
@@ -390,7 +390,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                           <div
                             key={event.id}
                             className={`text-xs p-1 rounded truncate cursor-pointer hover:opacity-80
-                              ${event.type === 'study' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}
+                              ${event.type === 'learning session' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}
                             `}
                             onClick={(e) => handleEventClick(event, e)}
                           >
@@ -430,7 +430,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                     <div
                       key={event.id}
                       className={`p-3 rounded-lg border-l-4 cursor-pointer hover:opacity-80 transition-opacity
-                        ${event.type === 'study' ? 'border-blue-500 bg-blue-50' : 'border-green-500 bg-green-50'}
+                        ${event.type === 'learning session' ? 'border-blue-500 bg-blue-50' : 'border-green-500 bg-green-50'}
                       `}
                       onClick={(e) => handleEventClick(event, e)}
                     >
@@ -474,7 +474,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
       <AppSideBar
         activePage={activePage}
         onPageChange={handlePageChange}
-        userName="Max"
         onLogout={onLogout}
       />
 
@@ -618,7 +617,7 @@ interface CalendarEvent {
   endDate: string;
   start_time: string;
   end_time: string;
-  type: "study" | "meeting" | "deadline" | "other";
+  type: "imported" | "learning session";
   isFullDay: boolean;
 }
 
