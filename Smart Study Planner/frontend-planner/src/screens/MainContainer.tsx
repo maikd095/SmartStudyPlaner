@@ -6,6 +6,7 @@ import CalendarView from "./calendar";
 import Settings from "./settings/settings";
 import FocusMode from "./focus/focusmode";
 import Statistics from "./statistics/statistics";
+import Progress from "./progress/progress";
 
 export type AppPage = "dashboard" | "calendar" | "focus" | "statistics" | "progress" | "settings";
 
@@ -53,6 +54,9 @@ const MainContainer: React.FC = () => {
       )}
       {currentPage === "statistics" && (
         <Statistics onLogout={handleLogout} onPageChange={handlePageChange} />
+      )}
+      {currentPage === "progress" && (
+        <Progress onLogout={handleLogout} onPageChange={handlePageChange} />
       )}
       {currentPage === "settings" && (
         <Settings onLogout={handleLogout} onPageChange={handlePageChange} />

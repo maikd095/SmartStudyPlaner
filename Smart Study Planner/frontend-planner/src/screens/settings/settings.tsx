@@ -73,7 +73,8 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
         const user = JSON.parse(userData);
 
         const updatedUser = {
-            id: user.id,
+            userId: user.id,
+            email: email,
             firstName,
             lastName,
             prefStartTime: preferredStartTime,
@@ -114,7 +115,6 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
             <AppSideBar
                 activePage={activePage}
                 onPageChange={handlePageChange}
-                userName={firstName}
                 onLogout={onLogout}
             />
 
@@ -214,7 +214,7 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
                                             <input
                                                 type="range"
                                                 min="15"
-                                                max="120"
+                                                max="180"
                                                 value={studyLength}
                                                 onChange={(e) => setStudyLength(parseInt(e.target.value))}
                                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"

@@ -11,12 +11,12 @@ public class TaskForOptimizer {
     
     //constructor
     public TaskForOptimizer(String name, double hoursRequired, LocalDate deadline, double sessionDuration, double breakDuration) {
-    	this.name = name;
-    	this.hoursRequired = hoursRequired;
-    	this.deadline = deadline;
-    	this.sessionDuration = sessionDuration + breakDuration;
-    	this.studyTime = sessionDuration;
-    	}
+        this.name = name;
+        this.hoursRequired = hoursRequired;
+        this.deadline = deadline;
+        this.sessionDuration = sessionDuration;
+        this.studyTime = sessionDuration;
+    }
     
     //Setters, getters
     public String getName() {

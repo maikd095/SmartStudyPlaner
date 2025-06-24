@@ -34,6 +34,9 @@ public class Event {
     @Column(name = "isFullDay")
     private Boolean isFullDay = false;
 
+    @Column(name = "session_used")
+    private Integer sessionUsed; // 0 = not completed, 1 = completed, null = not set
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -87,8 +90,6 @@ public class Event {
         this.endTime = endTime;
     }
 
-
-
     public Boolean getIsFullDay() {
         return isFullDay != null ? isFullDay : false;
     }
@@ -97,6 +98,13 @@ public class Event {
         this.isFullDay = isFullDay;
     }
 
+    public Integer getSessionUsed() {
+        return sessionUsed;
+    }
+
+    public void setSessionUsed(Integer sessionUsed) {
+        this.sessionUsed = sessionUsed;
+    }
 
     public User getUser() {
         return user;
