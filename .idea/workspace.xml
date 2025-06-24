@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cb2d81e-78f0-4e67-bc5c-5974c853ed89" name="Changes" comment="All things implemented&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse.">
-      <change beforePath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/PlannerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Backend_Lenny/src/main/java/com/example/API/Scheduler/PlannerService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/components/EventPopup.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/components/EventPopup.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/components/ModulePopup.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/components/ModulePopup.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/calendar/calendar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/calendar/calendar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/dashboard/dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/dashboard/dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/settings/settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/settings/settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/statistics/statistics.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Smart Study Planner/frontend-planner/src/screens/statistics/statistics.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="7cb2d81e-78f0-4e67-bc5c-5974c853ed89" name="Changes" comment="vite setup" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -193,7 +185,7 @@
       <workItem from="1750337296730" duration="358000" />
       <workItem from="1750337747172" duration="3301000" />
       <workItem from="1750435873600" duration="18589000" />
-      <workItem from="1750628100951" duration="9019000" />
+      <workItem from="1750628100951" duration="11157000" />
     </task>
     <task id="LOCAL-00001" summary="Erster Versuch">
       <option name="closed" value="true" />
@@ -259,7 +251,47 @@
       <option name="project" value="LOCAL" />
       <updated>1750713245476</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="All things implemented&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse.">
+      <option name="closed" value="true" />
+      <created>1750790455982</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1750790455982</updated>
+    </task>
+    <task id="LOCAL-00010" summary="All things implemented&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse.">
+      <option name="closed" value="true" />
+      <created>1750790526127</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1750790526128</updated>
+    </task>
+    <task id="LOCAL-00011" summary="vite setup">
+      <option name="closed" value="true" />
+      <created>1750792902604</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1750792902604</updated>
+    </task>
+    <task id="LOCAL-00012" summary="vite setup">
+      <option name="closed" value="true" />
+      <created>1750793228436</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1750793228437</updated>
+    </task>
+    <task id="LOCAL-00013" summary="vite setup">
+      <option name="closed" value="true" />
+      <created>1750793382360</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1750793382360</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -296,6 +328,7 @@
     <MESSAGE value="Dritter Versuch" />
     <MESSAGE value="Add initial backend setup for calendar application&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse." />
     <MESSAGE value="All things implemented&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse." />
-    <option name="LAST_COMMIT_MESSAGE" value="All things implemented&#10;&#10;This commit includes the foundational setup for a Spring Boot-based backend application. It introduces entity, repository, and controller layers for managing events, Maven configuration files, database connection settings, and requires Java 24. Also added IDE-specific configurations and helper files to ensure project compatibility with IntelliJ and Eclipse." />
+    <MESSAGE value="vite setup" />
+    <option name="LAST_COMMIT_MESSAGE" value="vite setup" />
   </component>
 </project>
