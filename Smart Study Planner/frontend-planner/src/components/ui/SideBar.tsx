@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, Calendar, BarChart2, Clock, Settings, LogOut, Lock } from "lucide-react";
 
@@ -8,17 +8,33 @@ export type SidebarPage = "dashboard" | "calendar" | "focus" | "statistics" | "p
 interface AppSideBarProps {
   activePage: SidebarPage;
   onPageChange: (page: SidebarPage) => void;
-  userName?: string;
   onLogout: () => void;
 }
 
 const AppSideBar: React.FC<AppSideBarProps> = ({
   activePage,
   onPageChange,
-  userName = "Max",
   onLogout
 }) => {
-  // Navigation-Items mit Icons und Labels - Focus Mode hinzugefügt
+  const [userName, setUserName] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored).firstName : "...";
+  });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) return;
+    const userId = JSON.parse(storedUser).id;
+    fetch(`http://localhost:8080/api/users/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setUserName(data.firstName); // alternativ: data.username oder `${data.firstName} ${data.lastName}`
+      })
+      .catch(err => {
+        console.error("Fehler beim Laden des Users:", err);
+      });
+  }, []);
+
   const navItems = [
     { id: "dashboard" as SidebarPage, label: "Dashboard", icon: <Home size={18} /> },
     { id: "calendar" as SidebarPage, label: "Calendar View", icon: <Calendar size={18} /> },
@@ -38,8 +54,8 @@ const AppSideBar: React.FC<AppSideBarProps> = ({
               key={item.id}
               onClick={() => onPageChange(item.id)}
               className={`justify-start w-full ${activePage === item.id
-                  ? "bg-white text-[#002366] font-semibold shadow-sm"
-                  : "text-white border-white hover:text-[#002366] hover:bg-white"
+                ? "bg-white text-[#002366] font-semibold shadow-sm"
+                : "text-white border-white hover:text-[#002366] hover:bg-white"
                 }`}
               variant={activePage === item.id ? "ghost" : "outline"}
             >
