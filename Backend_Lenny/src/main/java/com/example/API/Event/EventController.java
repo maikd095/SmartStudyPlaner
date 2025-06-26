@@ -67,7 +67,8 @@ public class EventController {
     @PostMapping("/import")
     public ResponseEntity<String> importCalendar(@RequestParam("file") MultipartFile file,
                                                  @RequestParam("userId") Long userId) {
-        try {
+        // calling method to extract the events from ics file
+    	try {
             calendarImportService.importFromICS(file, userId);
             return ResponseEntity.ok("Import erfolgreich");
         } catch (Exception e) {
@@ -83,7 +84,7 @@ public class EventController {
 
     @PutMapping("/{eventId}")
     public ResponseEntity<?> updateEvent(@PathVariable Long eventId, @RequestBody Event eventInput) {
-        // Prüfe, ob das Event existiert
+        // check if event exists
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -91,7 +92,7 @@ public class EventController {
 
         Event existingEvent = optionalEvent.get();
 
-        // Aktualisiere nur die Event-Felder
+        // update the event fields 
         if (eventInput.getTitle() != null) {
             existingEvent.setTitle(eventInput.getTitle());
         }
@@ -131,7 +132,7 @@ public class EventController {
 
     @PutMapping("/{eventId}/completion")
     public ResponseEntity<?> updateSessionCompletion(@PathVariable Long eventId, @RequestParam Integer completed) {
-        // Prüfe, ob das Event existiert
+        // check if event exists
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -139,33 +140,33 @@ public class EventController {
 
         Event existingEvent = optionalEvent.get();
 
-        // Validiere den completed Parameter (0 oder 1)
+        // validate the completed parameter (0 or 1)
         if (completed != 0 && completed != 1) {
             return ResponseEntity.badRequest().body("Parameter 'completed' muss 0 oder 1 sein");
         }
 
-        // Berechne die Session-Dauer in Stunden
+        // calculate the session duration
         double sessionDurationHours = 0.0;
         if (existingEvent.getStartTime() != null && existingEvent.getEndTime() != null) {
             LocalTime startTime = existingEvent.getStartTime();
             LocalTime endTime = existingEvent.getEndTime();
 
-            // Berechne Dauer in Minuten und konvertiere zu Stunden
+            // calculate difference in minutes and convert to  hours
             long durationMinutes = Duration.between(startTime, endTime).toMinutes();
             sessionDurationHours = durationMinutes / 60.0;
         }
 
-        // Alte Session-Status für Rollback-Logik
+        // old session status for rollback logic
         Integer oldSessionUsed = existingEvent.getSessionUsed();
 
-        // Setze session_used auf 0 (nicht abgeschlossen) oder 1 (abgeschlossen)
+        // set session_used to 0 (not used/completed) or 1 (used/completed)
         existingEvent.setSessionUsed(completed);
 
         try {
-            // Speichere Event zuerst
+            // save event
             Event updatedEvent = eventRepository.save(existingEvent);
 
-            // Aktualisiere das zugehörige Modul basierend auf dem Event-Titel
+            // update the module based on event title
             updateModuleStudyTime(existingEvent.getTitle(), existingEvent.getUser().getUserId(),
                     completed, oldSessionUsed, sessionDurationHours);
 
@@ -178,11 +179,11 @@ public class EventController {
 
     private void updateModuleStudyTime(String eventTitle, Long userId, Integer newStatus,
                                        Integer oldStatus, double sessionDurationHours) {
-        // Finde Module basierend auf dem Event-Titel
-        // Annahme: Event-Titel enthält den Modulnamen oder eine Referenz darauf
+        //// find module bases on event title  ////
+        // assumptions: event title contains module name or refers to a module
         List<Module> userModules = moduleRepository.findAllByUser_UserId(userId);
 
-        // Finde das passende Modul (hier einfache Implementierung - Event-Titel muss Modul-Namen enthalten)
+        // find module -> event title must contain module name
         Optional<Module> matchingModule = userModules.stream()
                 .filter(module -> eventTitle.toLowerCase().contains(module.getName().toLowerCase()) ||
                         module.getName().toLowerCase().contains(eventTitle.toLowerCase()))
@@ -192,12 +193,12 @@ public class EventController {
             Module module = matchingModule.get();
             long currentStudyTime = module.getAlreadyStudied();
 
-            // Berechne neue Studienzeit basierend auf Status-Änderung
+            // Calcualte new studytime based on status change 
             if (newStatus == 1 && (oldStatus == null || oldStatus == 0)) {
-                // Session wurde als abgeschlossen markiert - Zeit hinzufügen
+                // session was changed to used - increase time
                 module.setAlreadyStudied(currentStudyTime + Math.round(sessionDurationHours));
             } else if (newStatus == 0 && oldStatus == 1) {
-                // Session wurde von abgeschlossen zu nicht-abgeschlossen geändert - Zeit abziehen
+                // session was changed to not used - decrease time
                 long newStudyTime = Math.max(0, currentStudyTime - Math.round(sessionDurationHours));
                 module.setAlreadyStudied(newStudyTime);
             }
@@ -208,12 +209,13 @@ public class EventController {
 
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long eventId) {
-        // Prüfe, ob das Event existiert
+        // Check if event exists
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
+        // delete
         try {
             eventRepository.deleteById(eventId);
             return ResponseEntity.ok().body("Event erfolgreich gelöscht");

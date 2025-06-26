@@ -51,11 +51,9 @@ public class User {
     @Column(name = "dark_mode")
     private Boolean darkMode;
 
-    // Standard Konstruktor
     public User() {
     }
 
-    // Konstruktor mit Parametern
     public User(String username, String email, String password, String firstName, String lastName, LocalDateTime creationDate, LocalTime prefStartTime, LocalTime prefEndTime, Integer prefSessionLength, Integer prefBreakLength, Boolean enableNotifications, Boolean darkMode) {
         this.username = username;
         this.email = email;
@@ -71,6 +69,8 @@ public class User {
         this.darkMode = darkMode;
     }
 
+    
+    // getters and setters
     public String getUsername() {
         return username;
     }

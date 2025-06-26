@@ -24,6 +24,7 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    ///// login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         LoginResponse response = userService.login(loginRequest);
@@ -36,6 +37,7 @@ public class UserController {
         }
     }
 
+    ///// registraion
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         User registeredUser = userService.register(user);
@@ -55,6 +57,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    //// saving user settings
     @PutMapping("/settings")
     public ResponseEntity<?> updateUserSettings(@RequestBody User userInput) {
         Optional<User> optionalUser = userRepository.findByUserId(userInput.getUserId());

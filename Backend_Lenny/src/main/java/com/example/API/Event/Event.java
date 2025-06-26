@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "event") // Name deiner Tabelle in der Datenbank
+@Table(name = "event")
 public class Event {
 
     @Id
@@ -41,7 +41,6 @@ public class Event {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Standard-Konstruktor
     public Event() {
     }
 

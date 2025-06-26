@@ -4,17 +4,15 @@ public class LoginRequest {
     private String email;
     private String password;
 
-    // Standard Konstruktor
     public LoginRequest() {
     }
 
-    // Konstruktor mit Parametern
     public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
-    // Getter und Setter
+    // getters and setters
     public String getEmail() {
         return email;
     }

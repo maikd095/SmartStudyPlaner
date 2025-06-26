@@ -10,7 +10,6 @@ public class LoginResponse {
     public LoginResponse() {
     }
 
-    // Konstruktor mit Parametern
     public LoginResponse(Long userId, String email, String firstName, String lastName, String token) {
         this.userId = userId;
         this.email = email;
@@ -19,7 +18,7 @@ public class LoginResponse {
         this.token = token;
     }
 
-    // Getter und Setter
+    // getters and setters
     public Long getUserId() {
         return userId;
     }

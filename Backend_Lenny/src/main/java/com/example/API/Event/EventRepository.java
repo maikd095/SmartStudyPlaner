@@ -14,10 +14,10 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByStartTimeBetween(LocalDateTime start, LocalDateTime end);
     
-    // Methode zum Finden von Events nach Benutzer
+    // method to find events by/for user
     List<Event> findAllByUser(User user);
     
-    // Optional: Methode mit Zeitraum und Benutzer kombinieren
+    // Optional: method using user AND time frame
     List<Event> findAllByUserAndStartTimeBetween(User user, LocalDateTime start, LocalDateTime end);
 
     @Transactional

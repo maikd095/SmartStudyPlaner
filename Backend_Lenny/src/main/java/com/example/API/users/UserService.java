@@ -25,7 +25,7 @@ public class UserService {
             User user = userOptional.get();
 
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                // Generiere ein einfachen Token
+                // generating token
                 String token = UUID.randomUUID().toString();
 
                 return new LoginResponse(
@@ -38,19 +38,19 @@ public class UserService {
             }
         }
 
-        return null; // Authentifizierung fehlgeschlagen
+        return null; // authentification failed
     }
 
     public User register(User user) {
-        // Prüfe, ob E-Mail bereits existiert
+        // checking if email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
-            return null; // Benutzer existiert bereits
+            return null; // user already exists
         }
 
-        // Passwort verschlüsseln
+        // encrypt password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // Benutzer speichern
+        // saving user
         return userRepository.save(user);
     }
 }
