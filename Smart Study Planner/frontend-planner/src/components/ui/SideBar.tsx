@@ -1,4 +1,5 @@
 // All imports incl. https://ui.shadcn.com
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, Calendar, BarChart2, Clock, Settings, LogOut, Lock } from "lucide-react";
@@ -20,6 +21,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({
 }) => {
 
   //get userID for Backend
+
   const [userName, setUserName] = useState(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored).firstName : "...";
@@ -41,6 +43,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({
   }, []);
 
   // Define shown named
+
   const navItems = [
     { id: "dashboard" as SidebarPage, label: "Dashboard", icon: <Home size={18} /> },
     { id: "calendar" as SidebarPage, label: "Calendar View", icon: <Calendar size={18} /> },

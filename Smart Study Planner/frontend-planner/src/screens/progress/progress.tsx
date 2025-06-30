@@ -1,4 +1,5 @@
 // All imports
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, X, BookOpen, Calendar, Clock, Edit } from "lucide-react";
@@ -12,6 +13,7 @@ interface ProgressProps {
 }
 
 // All needed fields for an event
+
 interface EventItem {
     id: number;
     title: string;
@@ -24,6 +26,7 @@ interface EventItem {
     sessionUsed?: number | null;
 }
 // All needed fields for a module
+
 interface ModuleItem {
     id: number;
     name: string;
@@ -35,6 +38,7 @@ interface ModuleItem {
 }
 
 // Initialize
+
 const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
     const [activePage, setActivePage] = useState<SidebarPage>("progress");
     const [completedLearningSessions, setCompletedLearningSessions] = useState<EventItem[]>([]);
@@ -58,11 +62,13 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
     };
 
     // Call API for completion of a session
+
     const handleSessionCompletion = async (sessionId: number, completed: boolean) => {
         try {
             const completionValue = completed ? 1 : 0;
 
             const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events/${sessionId}/completion?completed=${completionValue}`, {
+
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -70,6 +76,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
             });
 
             if (response.ok) {
+
                 setCompletedLearningSessions(prev =>
                     prev.map(session =>
                         session.id === sessionId
@@ -81,6 +88,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                 // Refresh modules to show updated study time
                 fetchModules();
 
+
             } else {
                 console.error('Failed to update session completion');
             }
@@ -89,6 +97,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
         }
     };
     // Calculate days for the deadline
+
     const getDaysUntilDeadline = (deadline: string): number => {
         const today = new Date();
         const deadlineDate = new Date(deadline);
@@ -97,6 +106,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
     };
 
     //colours for difficulty
+
     const getDifficultyColor = (difficulty: string): string => {
         switch (difficulty.toLowerCase()) {
             case 'easy':
@@ -115,6 +125,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
         try {
             const user = JSON.parse(localStorage.getItem("user") || "{}");
             const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/module?userId=${user.id}`);
+
             if (response.ok) {
                 const data = await response.json();
                 setModules(data);
@@ -131,6 +142,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
         try {
             const user = JSON.parse(localStorage.getItem("user") || "{}");
             const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events?userId=${user.id}`);
+
             const data = await response.json();
 
             // Filter for completed learning sessions
@@ -148,6 +160,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                 .map((session: EventItem) => ({
                     ...session,
                     sessionUsed: session.sessionUsed || null
+
                 }));
 
             setCompletedLearningSessions(completedSessions);
@@ -162,6 +175,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
     }, []);
 
     //Layout
+
     return (
         <div className="flex h-screen font-sans bg-[#f2f3f7]">
             <AppSideBar
@@ -175,6 +189,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-3xl font-bold text-[#002366] mb-2">Progress</h2>
+
                         </div>
                     </div>
                 </div>
@@ -291,6 +306,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                                 <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                                 <p className="text-gray-500 text-lg">No modules found</p>
                                 <p className="text-gray-400 text-sm">Add your study modules to track your progress</p>
+
                             </div>
                         )}
                     </CardContent>
@@ -387,6 +403,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                         </div>
 
                         {/* Empty if no completed sessions */}
+
                         {completedLearningSessions.length === 0 && (
                             <div className="p-8 text-center">
                                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -394,6 +411,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                                 </div>
                                 <p className="text-gray-500 text-lg">No completed learning sessions</p>
                                 <p className="text-gray-400 text-sm">Your completed learning sessions will appear here</p>
+
                             </div>
                         )}
                     </CardContent>

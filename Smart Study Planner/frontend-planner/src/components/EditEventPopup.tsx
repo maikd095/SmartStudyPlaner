@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Clock, Calendar, Trash2 } from "lucide-react";
 
 // Define neccessary columns/fields for an event of the backend
+
 interface CalendarEvent {
     id: string;
     title: string;
@@ -17,6 +18,7 @@ interface CalendarEvent {
 }
 
 // props that the EditEventPopup expects to receive
+
 interface EditEventPopupProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -32,6 +34,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
     event
 }) => {
     //Initialite constants
+
     const [title, setTitle] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -41,6 +44,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
     // Standard values in form when event changes orpopup opens
+
     useEffect(() => {
         if (open && event) {
             setTitle(event.title);
@@ -54,6 +58,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
     }, [open, event]);
 
     // Adjust end time when the start time changes
+
     useEffect(() => {
         if (startTime && !isFullDay) {
             const [hours, minutes] = startTime.split(':').map(Number);
@@ -66,6 +71,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
     }, [startTime, isFullDay]);
 
     // Adjust the end date when the start date changes
+
     useEffect(() => {
         if (startDate && (!endDate || new Date(endDate) < new Date(startDate))) {
             setEndDate(startDate);
@@ -73,10 +79,12 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
     }, [startDate]);
 
     //  Validation of  user input
+
     const validateForm = () => {
         const errors: { [key: string]: string } = {};
 
         if (!title.trim()) {
+
             errors.title = "Please enter a title";
         }
 
@@ -99,6 +107,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
 
             if (!endTime) {
                 errors.endTime = "Please choose an end time";
+
             }
 
             // Check times only for single-day events
@@ -108,6 +117,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
 
                 if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
                     errors.timeRange = "The start time hast to be before the end time!";
+
                 }
             }
         }
@@ -141,12 +151,14 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
 
         //Send All information through API
         fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events/${event.id}`, {
+
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatedEvent)
         })
             .then(response => {
                 // IF error;
+
                 if (!response.ok) {
                     return response.text().then(text => {
                         try {
@@ -154,6 +166,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
                             throw new Error(json.error || text || `Server-Error: ${response.status}`);
                         } catch (e) {
                             throw new Error(text || `Server-Error: ${response.status}`);
+
                         }
                     });
                 }
@@ -162,16 +175,19 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
             // If everything is correct
             .then(data => {
                 console.log("Event updated sucessfully:", data);
+
                 onOpenChange(false);
                 if (onEventUpdated) onEventUpdated();
             })
             .catch(error => {
                 console.error("Error while updating event:", error);
+
                 alert(error.message);
             });
     };
 
     // Delete Event through API-call
+
     const handleDeleteEvent = () => {
         if (!event) return;
 
@@ -181,23 +197,27 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
         console.log("Deleting event:", event.id);
 
         fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events/${event.id}`, {
+
             method: "DELETE"
         })
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
                         throw new Error(text || `Server-Error: ${response.status}`);
+
                     });
                 }
                 return response.text();
             })
             .then(() => {
                 console.log("Event deleted successfully");
+
                 onOpenChange(false);
                 if (onEventUpdated) onEventUpdated();
             })
             .catch(error => {
                 console.error("Error while deleting event:", error);
+
                 alert(error.message);
             });
     };
@@ -206,6 +226,7 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
 
 
     // Layout of popup
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="bg-white w-full max-w-md p-0 rounded-xl">

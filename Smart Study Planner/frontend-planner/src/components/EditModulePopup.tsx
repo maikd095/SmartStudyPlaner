@@ -1,4 +1,5 @@
 // All imports incl. https://ui.shadcn.com
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 
 // All fields a module needs
+
 interface ModuleItem {
     id: number;
     name: string;
@@ -17,6 +19,7 @@ interface ModuleItem {
 }
 
 // All props the popup needs
+
 interface EditModulePopupProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -33,6 +36,7 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
     //set initial status
     const [name, setName] = useState("");
     const [difficulty, setDifficulty] = useState("medium");
+
     const [hoursRequired, setHoursRequired] = useState("");
     const [deadline, setDeadline] = useState("");
     const [ects, setEcts] = useState("");
@@ -56,6 +60,7 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
         if (!open) {
             setName("");
             setDifficulty("medium");
+
             setHoursRequired("");
             setDeadline("");
             setEcts("");
@@ -72,24 +77,28 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
             // Validation
             if (!name.trim()) {
                 alert("Please enter a name");
+
                 setIsLoading(false);
                 return;
             }
 
             if (!deadline) {
                 alert("Please enter a deadline");
+
                 setIsLoading(false);
                 return;
             }
 
             if (!ects || Number(ects) <= 0) {
                 alert("Please enter a valid number of ECTS");
+
                 setIsLoading(false);
                 return;
             }
 
             if (!alreadyStudied || Number(alreadyStudied) <= 0) {
                 alert("Please enter a valid number of hours");
+
                 setIsLoading(false);
                 return;
             }
@@ -108,6 +117,7 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
 
             //Update module through API-call
             const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/module/${module.id}`, {
+
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -133,6 +143,7 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
             }
 
 
+
             console.log("Module updated successfully");
 
             if (onModuleUpdated) onModuleUpdated();
@@ -141,6 +152,7 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
         } catch (error) {
             console.error("Error while updating the module:", error);
             alert("Error while updating the module");
+
         } finally {
             setIsLoading(false);
         }
@@ -149,6 +161,7 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
     if (!module) return null;
 
     //Layout of popup
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="bg-white w-full max-w-md p-0 rounded-xl">

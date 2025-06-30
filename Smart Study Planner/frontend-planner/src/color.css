@@ -1,0 +1,40 @@
+/* colors.css */
+:root {
+    /* Light mode colors */
+    --color-background: 359 92% 41%;
+    --color-surface: 249 250 251;
+    --color-surface-elevated: 255 255 255;
+    
+    --color-text-primary: 17 24 39;
+    --color-text-secondary: 107 114 128;
+    --color-text-muted: 156 163 175;
+    
+    --color-border: 229 231 235;
+    --color-border-focus: 59 130 246;
+    
+    --color-primary: 59 130 246;
+    --color-primary-hover: 37 99 235;
+    --color-success: 34 197 94;
+    --color-danger: 239 68 68;
+    --color-warning: 245 158 11;
+  }
+  
+  .dark {
+    /* Dark mode colors */
+    --color-background: 17 24 39;
+    --color-surface: 31 41 55;
+    --color-surface-elevated: 55 65 81;
+    
+    --color-text-primary: 249 250 251;
+    --color-text-secondary: 209 213 219;
+    --color-text-muted: 156 163 175;
+    
+    --color-border: 55 65 81;
+    --color-border-focus: 96 165 250;
+    
+    --color-primary: 96 165 250;
+    --color-primary-hover: 59 130 246;
+    --color-success: 74 222 128;
+    --color-danger: 248 113 113;
+    --color-warning: 251 191 36;
+  }

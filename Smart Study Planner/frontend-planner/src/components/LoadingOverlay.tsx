@@ -8,6 +8,7 @@ interface LoadingOverlayProps {
 }
 
 // Parameters it needs
+
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     isVisible,
     message = "Rescheduling your calendar..."
@@ -21,6 +22,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
         }
 
         // Feeling of loading screen with moving dots
+
         const interval = setInterval(() => {
             setDots(prev => {
                 if (prev === '...') return '';
@@ -40,9 +42,11 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
 
             <Card className="relative bg-white border border-gray-300 rounded-2xl p-8 shadow-2xl max-w-md mx-4">
                 <div className="flex flex-col items-center space-y-6">
+
                     <div className="relative">
                         <Loader2 className="h-12 w-12 text-[#002366] animate-spin" />
                     </div>
+
 
                     <div className="text-center space-y-2">
                         <h3 className="text-xl font-semibold text-gray-900">
@@ -52,6 +56,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
                             {message}{dots}
                         </p>
                     </div>
+
 
                     <div className="w-full bg-gray-200 rounded-full h-2">
                         <div className="bg-[#002366] h-2 rounded-full animate-pulse w-full" />
