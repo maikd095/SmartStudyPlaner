@@ -1,3 +1,4 @@
+//All imnports
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -10,9 +11,10 @@ interface ModulePopupProps {
     onModuleCreated?: () => void;
 }
 
+//Initilize popup
 const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleCreated }) => {
     const [name, setName] = useState("");
-    const [difficulty, setDifficulty] = useState("mittel");
+    const [difficulty, setDifficulty] = useState("medium");
     const [hoursRequired, setHoursRequired] = useState("");
     const [deadline, setDeadline] = useState("");
     const [ects, setEcts] = useState("");
@@ -23,36 +25,47 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
         setIsLoading(true);
 
         try {
+            //Get userID and validation
             const storedUser = localStorage.getItem("user");
             if (!storedUser) {
-                alert("Bitte erneut einloggen.");
+                alert("Log in again!");
                 return;
             }
 
             const user = JSON.parse(storedUser);
-            console.log("User from localStorage:", user); // Debug log
 
             // Validation
             if (!name.trim()) {
-                alert("Modulname ist erforderlich.");
+                alert("Please enter a name");
+                setIsLoading(false);
                 return;
             }
 
             if (!deadline) {
-                alert("Deadline ist erforderlich.");
+                alert("Please enter a deadline");
+                setIsLoading(false);
                 return;
             }
 
             if (!ects || Number(ects) <= 0) {
-                alert("ECTS muss eine positive Zahl sein.");
+                alert("Please enter a valid number of ECTS");
+                setIsLoading(false);
                 return;
             }
 
             if (!hoursRequired || Number(hoursRequired) <= 0) {
-                alert("Benötigte Stunden müssen eine positive Zahl sein.");
+                alert("Please enter a valid number of hours");
+                setIsLoading(false);
                 return;
             }
 
+            if (!alreadyStudied || Number(alreadyStudied) <= 0) {
+                alert("Please enter a valid number of hours");
+                setIsLoading(false);
+                return;
+            }
+
+            //Fields how a newModule looks like
             const newModule = {
                 name: name.trim(),
                 difficulty,
@@ -60,12 +73,11 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
                 deadline,
                 ects: Number(ects),
                 alreadyStudied: Number(alreadyStudied) || 0,
-                user: { userId: user.userId || user.id } // Versuche beide mögliche Feldnamen
+                user: { userId: user.userId || user.id }
             };
 
-            console.log("Sending module data:", newModule); // Debug log
-
-            const response = await fetch("http://localhost:8080/api/module", {
+            // Create Module with API-call
+            const response = await fetch("https://study-planner-online-275553834411.europe-west3.run.app/api/module", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -74,18 +86,18 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
                 body: JSON.stringify(newModule)
             });
 
-            console.log("Response status:", response.status); // Debug log
+            console.log("Response status:", response.status);
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error("Error response:", errorText); // Debug log
-                throw new Error(`Fehler beim Erstellen des Moduls: ${errorText}`);
+                console.error("Error response:", errorText);
+                throw new Error(`Error while creating event: ${errorText}`);
             }
 
 
             // Reset form
             setName("");
-            setDifficulty("mittel");
+            setDifficulty("medium");
             setHoursRequired("");
             setDeadline("");
             setEcts("");
@@ -96,12 +108,13 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
 
 
         } catch (error) {
-            console.error("Fehler beim Erstellen des Moduls:", error);
+            console.error("Error while creating event:", error);
         } finally {
             setIsLoading(false);
         }
     };
 
+    // Layout of popup
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="bg-white w-full max-w-md p-0 rounded-xl">
@@ -114,7 +127,7 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
                         <Input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="z.B. Statistik 2"
+                            placeholder="e.g. Java"
                             disabled={isLoading}
                         />
                     </div>
@@ -123,7 +136,7 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
                         <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
                         <Select onValueChange={setDifficulty} value={difficulty} disabled={isLoading}>
                             <SelectTrigger className="w-full border-gray-300 bg-white">
-                                <SelectValue placeholder="Bitte auswählen" />
+                                <SelectValue placeholder="Please choose" />
                             </SelectTrigger>
                             <SelectContent className="bg-white">
                                 <SelectItem value="easy">Easy</SelectItem>
@@ -162,7 +175,7 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
                                 type="number"
                                 value={ects}
                                 onChange={(e) => setEcts(e.target.value)}
-                                placeholder="z.B. 6"
+                                placeholder="e.g. 6"
                                 min="1"
                                 disabled={isLoading}
                             />
@@ -173,7 +186,7 @@ const ModulePopup: React.FC<ModulePopupProps> = ({ open, onOpenChange, onModuleC
                                 type="number"
                                 value={alreadyStudied}
                                 onChange={(e) => setAlreadyStudied(e.target.value)}
-                                placeholder="z.B. 8"
+                                placeholder="e.g. 8"
                                 min="0"
                                 disabled={isLoading}
                             />

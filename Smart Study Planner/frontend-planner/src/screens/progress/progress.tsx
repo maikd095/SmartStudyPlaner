@@ -1,3 +1,5 @@
+// All imports
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, X, BookOpen, Calendar, Clock, Edit } from "lucide-react";
@@ -10,6 +12,8 @@ interface ProgressProps {
     onPageChange: (page: AppPage) => void;
 }
 
+// All needed fields for an event
+
 interface EventItem {
     id: number;
     title: string;
@@ -19,8 +23,9 @@ interface EventItem {
     endTime: string;
     type: string;
     isFullDay: boolean;
-    sessionUsed?: number | null; // null = not set, 1 = completed, 0 = not completed
+    sessionUsed?: number | null;
 }
+// All needed fields for a module
 
 interface ModuleItem {
     id: number;
@@ -31,6 +36,8 @@ interface ModuleItem {
     alreadyStudied: number;
     difficulty: string;
 }
+
+// Initialize
 
 const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
     const [activePage, setActivePage] = useState<SidebarPage>("progress");
@@ -54,11 +61,14 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
         fetchModules();
     };
 
+    // Call API for completion of a session
+
     const handleSessionCompletion = async (sessionId: number, completed: boolean) => {
         try {
             const completionValue = completed ? 1 : 0;
 
-            const response = await fetch(`http://localhost:8080/api/events/${sessionId}/completion?completed=${completionValue}`, {
+            const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events/${sessionId}/completion?completed=${completionValue}`, {
+
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,7 +76,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
             });
 
             if (response.ok) {
-                // Update local state for sessions
+
                 setCompletedLearningSessions(prev =>
                     prev.map(session =>
                         session.id === sessionId
@@ -78,8 +88,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                 // Refresh modules to show updated study time
                 fetchModules();
 
-                // Optional: Show success message
-                console.log(`Session ${completed ? 'completed' : 'marked as incomplete'} successfully`);
+
             } else {
                 console.error('Failed to update session completion');
             }
@@ -87,6 +96,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
             console.error('Error updating session completion:', error);
         }
     };
+    // Calculate days for the deadline
 
     const getDaysUntilDeadline = (deadline: string): number => {
         const today = new Date();
@@ -94,6 +104,8 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
         const timeDiff = deadlineDate.getTime() - today.getTime();
         return Math.ceil(timeDiff / (1000 * 3600 * 24));
     };
+
+    //colours for difficulty
 
     const getDifficultyColor = (difficulty: string): string => {
         switch (difficulty.toLowerCase()) {
@@ -112,7 +124,8 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
     const fetchModules = async () => {
         try {
             const user = JSON.parse(localStorage.getItem("user") || "{}");
-            const response = await fetch(`http://localhost:8080/api/module?userId=${user.id}`);
+            const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/module?userId=${user.id}`);
+
             if (response.ok) {
                 const data = await response.json();
                 setModules(data);
@@ -128,7 +141,8 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
     const fetchEvents = async () => {
         try {
             const user = JSON.parse(localStorage.getItem("user") || "{}");
-            const response = await fetch(`http://localhost:8080/api/events?userId=${user.id}`);
+            const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events?userId=${user.id}`);
+
             const data = await response.json();
 
             // Filter for completed learning sessions
@@ -141,11 +155,12 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                 .sort((a: EventItem, b: EventItem) => {
                     const aDate = new Date(`${a.startDate}T${a.startTime}`);
                     const bDate = new Date(`${b.startDate}T${b.startTime}`);
-                    return bDate.getTime() - aDate.getTime(); // Most recent first
+                    return bDate.getTime() - aDate.getTime();
                 })
                 .map((session: EventItem) => ({
                     ...session,
-                    sessionUsed: session.sessionUsed || null // Initialize as not set if undefined
+                    sessionUsed: session.sessionUsed || null
+
                 }));
 
             setCompletedLearningSessions(completedSessions);
@@ -158,6 +173,8 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
         fetchModules();
         fetchEvents();
     }, []);
+
+    //Layout
 
     return (
         <div className="flex h-screen font-sans bg-[#f2f3f7]">
@@ -172,7 +189,7 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-3xl font-bold text-[#002366] mb-2">Progress</h2>
-                            <p className="text-gray-600">Track the Journey. Celebrate the Progress.</p>
+
                         </div>
                     </div>
                 </div>
@@ -288,7 +305,8 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                             <div className="p-8 text-center">
                                 <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                                 <p className="text-gray-500 text-lg">No modules found</p>
-                                <p className="text-gray-400 text-sm">Add your study modules to track your progress.</p>
+                                <p className="text-gray-400 text-sm">Add your study modules to track your progress</p>
+
                             </div>
                         )}
                     </CardContent>
@@ -384,14 +402,16 @@ const Progress: React.FC<ProgressProps> = ({ onLogout, onPageChange }) => {
                             </table>
                         </div>
 
-                        {/* Empty state if no completed sessions */}
+                        {/* Empty if no completed sessions */}
+
                         {completedLearningSessions.length === 0 && (
                             <div className="p-8 text-center">
                                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <span className="text-2xl">📚</span>
                                 </div>
-                                <p className="text-gray-500 text-lg">No completed learning sessions yet</p>
-                                <p className="text-gray-400 text-sm">Your completed learning sessions will appear here.</p>
+                                <p className="text-gray-500 text-lg">No completed learning sessions</p>
+                                <p className="text-gray-400 text-sm">Your completed learning sessions will appear here</p>
+
                             </div>
                         )}
                     </CardContent>

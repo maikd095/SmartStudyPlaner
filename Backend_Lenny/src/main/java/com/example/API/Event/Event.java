@@ -2,17 +2,15 @@ package com.example.API.Event;
 
 import com.example.API.users.User;
 import jakarta.persistence.*;
-
-//Nutzung von LocalDate & LocalTime da besser nutzbar
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "event") // Name deiner Tabelle in der Datenbank
+@Table(name = "event") // event table in database
 public class Event {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //unique identifier for each event in the database
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //autoincrement
     private Long id;
 
     private String title;
@@ -35,15 +33,12 @@ public class Event {
     private Boolean isFullDay = false;
 
     @Column(name = "session_used")
-    private Integer sessionUsed; // 0 = not completed, 1 = completed, null = not set
+    private Integer sessionUsed;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Standard-Konstruktor
-    public Event() {
-    }
 
     // Getter & Setter
     public Long getId() {

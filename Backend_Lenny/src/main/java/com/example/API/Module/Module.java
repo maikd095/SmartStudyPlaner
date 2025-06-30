@@ -38,7 +38,7 @@ public class Module {
     // Default constructor
     public Module() {}
 
-    // Constructor with required fields
+    // Constructor with required fields - not neccessary
     public Module(String name, double hoursRequired, LocalDate deadline, Long ects, User user) {
         this.name = name;
         this.hoursRequired = hoursRequired;
@@ -49,6 +49,7 @@ public class Module {
         this.difficulty = "middle";
     }
 
+    // Getter & Setter
     public String getName() {
         return name;
     }

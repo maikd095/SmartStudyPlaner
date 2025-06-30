@@ -1,8 +1,11 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Clock, Calendar, Trash2 } from "lucide-react";
+
+// Define neccessary columns/fields for an event of the backend
 
 interface CalendarEvent {
     id: string;
@@ -14,6 +17,8 @@ interface CalendarEvent {
     isFullDay: boolean;
 }
 
+// props that the EditEventPopup expects to receive
+
 interface EditEventPopupProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -21,12 +26,15 @@ interface EditEventPopupProps {
     event: CalendarEvent | null;
 }
 
+
 const EditEventPopup: React.FC<EditEventPopupProps> = ({
     open,
     onOpenChange,
     onEventUpdated,
     event
 }) => {
+    //Initialite constants
+
     const [title, setTitle] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -35,7 +43,8 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
     const [isFullDay, setIsFullDay] = useState(false);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-    // Populate form when event changes or popup opens
+    // Standard values in form when event changes orpopup opens
+
     useEffect(() => {
         if (open && event) {
             setTitle(event.title);
@@ -48,7 +57,8 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
         }
     }, [open, event]);
 
-    // Auto-adjust end time when start time changes
+    // Adjust end time when the start time changes
+
     useEffect(() => {
         if (startTime && !isFullDay) {
             const [hours, minutes] = startTime.split(':').map(Number);
@@ -60,40 +70,44 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
         }
     }, [startTime, isFullDay]);
 
-    // Auto-adjust end date when start date changes
+    // Adjust the end date when the start date changes
+
     useEffect(() => {
         if (startDate && (!endDate || new Date(endDate) < new Date(startDate))) {
             setEndDate(startDate);
         }
     }, [startDate]);
 
-    // Form validation
+    //  Validation of  user input
+
     const validateForm = () => {
         const errors: { [key: string]: string } = {};
 
         if (!title.trim()) {
-            errors.title = "Bitte geben Sie einen Titel ein.";
+
+            errors.title = "Please enter a title";
         }
 
         if (!startDate) {
-            errors.startDate = "Bitte wählen Sie ein Startdatum.";
+            errors.startDate = "Please choose a start date.";
         }
 
         if (!endDate) {
-            errors.endDate = "Bitte wählen Sie ein Enddatum.";
+            errors.endDate = "Please choose an end date";
         }
 
         if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-            errors.dateRange = "Das Startdatum muss vor oder am Enddatum liegen.";
+            errors.dateRange = "The start date has to be before the end date!";
         }
 
         if (!isFullDay) {
             if (!startTime) {
-                errors.startTime = "Bitte wählen Sie eine Startzeit.";
+                errors.startTime = "Please choose a start time";
             }
 
             if (!endTime) {
-                errors.endTime = "Bitte wählen Sie eine Endzeit.";
+                errors.endTime = "Please choose an end time";
+
             }
 
             // Check times only for single-day events
@@ -102,7 +116,8 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
                 const [endHour, endMinute] = endTime.split(':').map(Number);
 
                 if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
-                    errors.timeRange = "Die Startzeit muss vor der Endzeit liegen.";
+                    errors.timeRange = "The start time hast to be before the end time!";
+
                 }
             }
         }
@@ -111,17 +126,18 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
         return Object.keys(errors).length === 0;
     };
 
+
     const handleUpdateEvent = () => {
         if (!event) return;
 
-        console.log("Updating event with values:", { title, startDate, endDate, startTime, endTime, isFullDay });
-
+        // show error message when one validation check is false
         if (!validateForm()) {
             const errorMessage = Object.values(formErrors).join("\n");
-            alert(errorMessage || "Bitte füllen Sie alle Felder korrekt aus.");
+            alert(errorMessage || "Please fill in all fields correctly");
             return;
         }
 
+        // Define neccessary columns/fields for an updateEvent of the backend
         const updatedEvent = {
             title: title.trim(),
             startDate: startDate,
@@ -133,34 +149,44 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
 
         console.log("Sending updated event to backend:", updatedEvent);
 
-        fetch(`http://localhost:8080/api/events/${event.id}`, {
+        //Send All information through API
+        fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events/${event.id}`, {
+
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatedEvent)
         })
             .then(response => {
+                // IF error;
+
                 if (!response.ok) {
                     return response.text().then(text => {
                         try {
                             const json = JSON.parse(text);
-                            throw new Error(json.error || text || `Server-Fehler: ${response.status}`);
+                            throw new Error(json.error || text || `Server-Error: ${response.status}`);
                         } catch (e) {
-                            throw new Error(text || `Server-Fehler: ${response.status}`);
+                            throw new Error(text || `Server-Error: ${response.status}`);
+
                         }
                     });
                 }
                 return response.json();
             })
+            // If everything is correct
             .then(data => {
-                console.log("Event erfolgreich aktualisiert:", data);
+                console.log("Event updated sucessfully:", data);
+
                 onOpenChange(false);
                 if (onEventUpdated) onEventUpdated();
             })
             .catch(error => {
-                console.error("Fehler beim Aktualisieren des Events:", error);
+                console.error("Error while updating event:", error);
+
                 alert(error.message);
             });
     };
+
+    // Delete Event through API-call
 
     const handleDeleteEvent = () => {
         if (!event) return;
@@ -170,29 +196,36 @@ const EditEventPopup: React.FC<EditEventPopupProps> = ({
 
         console.log("Deleting event:", event.id);
 
-        fetch(`http://localhost:8080/api/events/${event.id}`, {
+        fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events/${event.id}`, {
+
             method: "DELETE"
         })
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
-                        throw new Error(text || `Server-Fehler: ${response.status}`);
+                        throw new Error(text || `Server-Error: ${response.status}`);
+
                     });
                 }
                 return response.text();
             })
             .then(() => {
-                console.log("Event erfolgreich gelöscht");
+                console.log("Event deleted successfully");
+
                 onOpenChange(false);
                 if (onEventUpdated) onEventUpdated();
             })
             .catch(error => {
-                console.error("Fehler beim Löschen des Events:", error);
+                console.error("Error while deleting event:", error);
+
                 alert(error.message);
             });
     };
 
     if (!event) return null;
+
+
+    // Layout of popup
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

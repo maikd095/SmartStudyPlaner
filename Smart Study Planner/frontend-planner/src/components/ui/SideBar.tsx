@@ -1,39 +1,48 @@
+// All imports incl. https://ui.shadcn.com
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, Calendar, BarChart2, Clock, Settings, LogOut, Lock } from "lucide-react";
 
-// Definiere die möglichen Seitenoptionen - Focus Mode hinzugefügt
+// Define all sites in app
 export type SidebarPage = "dashboard" | "calendar" | "focus" | "statistics" | "progress" | "settings";
 
+// props that the App Side Bar expects to receive
 interface AppSideBarProps {
   activePage: SidebarPage;
   onPageChange: (page: SidebarPage) => void;
   onLogout: () => void;
 }
-
+// Side Bar component
 const AppSideBar: React.FC<AppSideBarProps> = ({
   activePage,
   onPageChange,
   onLogout
 }) => {
+
+  //get userID for Backend
+
   const [userName, setUserName] = useState(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored).firstName : "...";
   });
 
   useEffect(() => {
+    //get firstname for the AppSideBar to see the user's name at all time
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return;
     const userId = JSON.parse(storedUser).id;
-    fetch(`http://localhost:8080/api/users/${userId}`)
+    fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/users/${userId}`)
       .then(res => res.json())
       .then(data => {
-        setUserName(data.firstName); // alternativ: data.username oder `${data.firstName} ${data.lastName}`
+        setUserName(data.firstName);
       })
       .catch(err => {
-        console.error("Fehler beim Laden des Users:", err);
+        console.error("Error while loading user:", err);
       });
   }, []);
+
+  // Define shown named
 
   const navItems = [
     { id: "dashboard" as SidebarPage, label: "Dashboard", icon: <Home size={18} /> },
@@ -44,6 +53,8 @@ const AppSideBar: React.FC<AppSideBarProps> = ({
     { id: "settings" as SidebarPage, label: "Settings", icon: <Settings size={18} /> }
   ];
 
+
+  //Layout of SideBar
   return (
     <div className="w-64 bg-[#002366] text-white flex flex-col justify-between p-4 h-full">
       <div>

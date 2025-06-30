@@ -1,3 +1,4 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, TrendingUp, Target, Star, Zap, AlertCircle, Calendar, BookOpen, BarChart3, Award } from "lucide-react";
@@ -9,6 +10,7 @@ interface StatisticsProps {
     onPageChange: (page: AppPage) => void;
 }
 
+// All needed fields for a module
 interface Module {
     id: number;
     name: string;
@@ -19,6 +21,7 @@ interface Module {
     difficulty: string;
 }
 
+// All needed fields for an event
 interface Event {
     id: number;
     title: string;
@@ -31,6 +34,7 @@ interface Event {
     sessionUsed: number | null;
 }
 
+// needed values for statisics page
 interface StudyStats {
     averageStudyTime: string;
     averageSessionDuration: string;
@@ -62,6 +66,7 @@ interface StudyStats {
     }>;
 }
 
+// Set initial values
 const Statistics: React.FC<StatisticsProps> = ({ onLogout, onPageChange }) => {
     const [activePage, setActivePage] = useState<SidebarPage>("statistics");
     const [studyData, setStudyData] = useState<StudyStats | null>(null);
@@ -73,6 +78,7 @@ const Statistics: React.FC<StatisticsProps> = ({ onLogout, onPageChange }) => {
         onPageChange(page as AppPage);
     };
 
+    // Fetch events and modules through API
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -84,8 +90,8 @@ const Statistics: React.FC<StatisticsProps> = ({ onLogout, onPageChange }) => {
 
             // Fetch modules and events
             const [modulesResponse, eventsResponse] = await Promise.all([
-                fetch(`http://localhost:8080/api/module?userId=${user.id}`),
-                fetch(`http://localhost:8080/api/events?userId=${user.id}`)
+                fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/module?userId=${user.id}`),
+                fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events?userId=${user.id}`)
             ]);
 
             if (!modulesResponse.ok || !eventsResponse.ok) {
@@ -211,9 +217,10 @@ const Statistics: React.FC<StatisticsProps> = ({ onLogout, onPageChange }) => {
         }));
     };
 
+    // bar chart for study sessions per month
     const calculateMonthlyData = (sessions: Event[]) => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        const monthlyHours = new Array(6).fill(0);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthlyHours = new Array(12).fill(0);
 
         const today = new Date();
 
@@ -353,6 +360,8 @@ const Statistics: React.FC<StatisticsProps> = ({ onLogout, onPageChange }) => {
 
     if (!studyData) return null;
 
+    // Layout
+    // The layout and design of the statistics page was done by help of AI (claude.ai)
     return (
         <div className="flex h-screen font-sans bg-[#f2f3f7]">
             <AppSideBar

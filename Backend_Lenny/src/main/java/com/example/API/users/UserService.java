@@ -3,6 +3,8 @@ package com.example.API.users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,6 +20,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Handles user login by checking if the provided email and password match eith DB
+     * @param loginRequest the login request object with the user's email and password
+     * @return a LoginResponse object with data
+     */
     public LoginResponse login(LoginRequest loginRequest) {
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
@@ -25,7 +32,7 @@ public class UserService {
             User user = userOptional.get();
 
             if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                // Generiere ein einfachen Token
+                // generate a token for user
                 String token = UUID.randomUUID().toString();
 
                 return new LoginResponse(
@@ -38,19 +45,36 @@ public class UserService {
             }
         }
 
-        return null; // Authentifizierung fehlgeschlagen
+        return null; // no user found or password does not match
     }
 
+    /**
+     * Handles user registration by checking if the provided email already exists in the DB.
+     * @param user the user object with all the data
+     * @return a User object with data if successful, or null if unsuccessful.
+     */
     public User register(User user) {
-        // Prüfe, ob E-Mail bereits existiert
+        // check if user exists in DB
         if (userRepository.existsByEmail(user.getEmail())) {
-            return null; // Benutzer existiert bereits
+            return null; // user already exists
         }
 
-        // Passwort verschlüsseln
+        // encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // Benutzer speichern
+        // set creation date to current datetime
+        user.setCreationDate(LocalDateTime.now());
+
+        // set default preference times if not provided
+        if (user.getPrefStartTime() == null) {
+            user.setPrefStartTime(LocalTime.of(10, 0, 0)); // 10:00:00
+        }
+
+        if (user.getPrefEndTime() == null) {
+            user.setPrefEndTime(LocalTime.of(22, 0, 0)); // 22:00:00
+        }
+
+        // save user to DB
         return userRepository.save(user);
     }
 }

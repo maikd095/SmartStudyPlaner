@@ -10,6 +10,7 @@ import java.util.Objects;
 @Table(name = "users")
 public class User {
 
+    // userID - autoincrement
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")

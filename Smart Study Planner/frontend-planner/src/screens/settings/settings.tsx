@@ -1,3 +1,4 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ interface SettingsProps {
     onPageChange: (page: AppPage) => void;
 }
 
+// Initializing fields with standard values. Could be left out because of API-Call
 const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
     const [activePage, setActivePage] = useState<SidebarPage>("settings");
 
@@ -32,13 +34,14 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
             try {
                 const userData = localStorage.getItem("user");
                 if (!userData) return;
-
+                // Get user ID
                 const parsedUser = JSON.parse(userData);
                 const userId = parsedUser?.id;
                 if (!userId) return;
 
-                const response = await fetch(`http://localhost:8080/api/users/settings?userId=${userId}`);
-                if (!response.ok) throw new Error("Fehler beim Abrufen der Nutzerdaten");
+                //Load Data with API-call
+                const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/users/settings?userId=${userId}`);
+                if (!response.ok) throw new Error("Error with API");
 
                 const user = await response.json();
 
@@ -53,7 +56,7 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
                 setPreferredEndTime(user.prefEndTime);
                 setCreationDate(user.creationDate);
             } catch (err) {
-                console.error("Fehler beim Laden der Daten vom Server:", err);
+                console.error("Error with loading user data:", err);
             }
         };
 
@@ -72,6 +75,7 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
 
         const user = JSON.parse(userData);
 
+        // User-Schema when updated
         const updatedUser = {
             userId: user.id,
             email: email,
@@ -85,30 +89,32 @@ const Settings: React.FC<SettingsProps> = ({ onLogout, onPageChange }) => {
             darkMode,
         };
 
-        const response = await fetch("http://localhost:8080/api/users/settings", {
+        // Update API
+        const response = await fetch("https://study-planner-online-275553834411.europe-west3.run.app/api/users/settings", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatedUser),
         });
 
         if (response.ok) {
-            console.log("Settings gespeichert");
+            console.log("Settings saved");
         } else {
-            console.error("Fehler beim Speichern");
+            console.error("Error while saving");
         }
     };
 
 
     const handleDeleteAccount = () => {
         if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-            console.log("Deleting account...");
             onLogout();
         }
     };
 
+    // to be implemented
     const handleChangePassword = () => {
-        console.log("Change password...");
     };
+
+    //Layout
 
     return (
         <div className="flex h-screen font-sans bg-[#f2f3f7]">

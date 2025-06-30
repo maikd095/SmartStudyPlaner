@@ -34,6 +34,11 @@ public class EventController {
         this.moduleRepository = moduleRepository;
     }
 
+    /**
+     * Get-API to get all events for a user
+     * @param userId: ID of user for which events should be returned.
+     * @return ResponseEntity containing a list of events or an error message if the query failed
+     */
     @GetMapping
     public ResponseEntity<List<Event>> getEventsForUser(@RequestParam Long userId) {
         Optional<User> user = userRepository.findById(userId);
@@ -44,6 +49,11 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    /**
+     * POST-API to get a single event by its ID (INSERT into table)
+     * @param event: Event to be inserted into the database
+     * @return ResponseEntity containing inserted event or an error message if the insertion failed.
+     */
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody Event event) {
         // validate if a user is set
@@ -64,26 +74,37 @@ public class EventController {
         }
     }
 
+    /**
+     * Imports a calendar file in .ICS to insert Events
+     *
+     * @param file: the calendar file to be imported
+     * @param userId: the userID to import the events for the specicifed  user
+     * @return a ResponseEntity containing a success message if the import is successful,
+     *         or an error message if the import fails
+     */
     @PostMapping("/import")
     public ResponseEntity<String> importCalendar(@RequestParam("file") MultipartFile file,
                                                  @RequestParam("userId") Long userId) {
         try {
             calendarImportService.importFromICS(file, userId);
-            return ResponseEntity.ok("Import erfolgreich");
+            return ResponseEntity.ok("Import successful!");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Import fehlgeschlagen: " + e.getMessage());
         }
     }
 
-    @PostMapping("/learningScheduler")
-    public ResponseEntity<Void> createLearningSessions(@RequestParam Event event){
-        return ResponseEntity.ok().build();
-    }
-
+    /**
+     * UPDATE-API: Updates an already existing event
+     *
+     * @param eventId: eventID for the updated event
+     * @param eventInput:  new event data
+     * @return ResponseEntity containing the updated event if successful, a 404 status code
+     *         if the event does not exist, or a 500 status code if an error occurs during the update
+     */
     @PutMapping("/{eventId}")
     public ResponseEntity<?> updateEvent(@PathVariable Long eventId, @RequestBody Event eventInput) {
-        // Prüfe, ob das Event existiert
+        // Check if event with given ID exists
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -91,7 +112,7 @@ public class EventController {
 
         Event existingEvent = optionalEvent.get();
 
-        // Aktualisiere nur die Event-Felder
+        // update event fields if they are filled
         if (eventInput.getTitle() != null) {
             existingEvent.setTitle(eventInput.getTitle());
         }
@@ -125,13 +146,20 @@ public class EventController {
             return ResponseEntity.ok(updatedEvent);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Fehler beim Aktualisieren des Events: " + e.getMessage());
+                    .body("Error: " + e.getMessage());
         }
     }
 
+    /**
+     * Completion-API: Marks an event as completed
+     *
+     * @param eventId: ID of the event that was completed
+     * @return ResponseEntity containing a success message if the completion is successful,
+     *         or a 404 status code if the event does not exist, or a 500 status code if an error occurs during the deletion
+     */
     @PutMapping("/{eventId}/completion")
     public ResponseEntity<?> updateSessionCompletion(@PathVariable Long eventId, @RequestParam Integer completed) {
-        // Prüfe, ob das Event existiert
+        // Check if event with passed ID exists
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -139,50 +167,62 @@ public class EventController {
 
         Event existingEvent = optionalEvent.get();
 
-        // Validiere den completed Parameter (0 oder 1)
+        // validate parameter 'completed'
         if (completed != 0 && completed != 1) {
-            return ResponseEntity.badRequest().body("Parameter 'completed' muss 0 oder 1 sein");
+            return ResponseEntity.badRequest().body("Parameter 'completed' must be 0 or 1");
         }
 
-        // Berechne die Session-Dauer in Stunden
+        // calculate duration of session
         double sessionDurationHours = 0.0;
         if (existingEvent.getStartTime() != null && existingEvent.getEndTime() != null) {
             LocalTime startTime = existingEvent.getStartTime();
             LocalTime endTime = existingEvent.getEndTime();
 
-            // Berechne Dauer in Minuten und konvertiere zu Stunden
+            // calculate duration in minutes
             long durationMinutes = Duration.between(startTime, endTime).toMinutes();
             sessionDurationHours = durationMinutes / 60.0;
         }
 
-        // Alte Session-Status für Rollback-Logik
+        // old session_used value (needed to update the study time of the module)
         Integer oldSessionUsed = existingEvent.getSessionUsed();
 
-        // Setze session_used auf 0 (nicht abgeschlossen) oder 1 (abgeschlossen)
+        // set session_used value
         existingEvent.setSessionUsed(completed);
 
         try {
-            // Speichere Event zuerst
+            // save event in database
             Event updatedEvent = eventRepository.save(existingEvent);
 
-            // Aktualisiere das zugehörige Modul basierend auf dem Event-Titel
+            // update module study time if necessary
             updateModuleStudyTime(existingEvent.getTitle(), existingEvent.getUser().getUserId(),
                     completed, oldSessionUsed, sessionDurationHours);
 
             return ResponseEntity.ok(updatedEvent);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Fehler beim Aktualisieren der Session-Completion: " + e.getMessage());
+                    .body("Error:" + e.getMessage());
         }
     }
 
+    /**
+     * Updates the study time for a  module
+     *
+     *
+     *
+     * @param eventTitle            The title of the event
+     * @param userId                The userID of the user
+     * @param newStatus             The new status of the session (completed (1) or not completed (0)).
+     * @param oldStatus             The previous status of the session before the update
+     * @param sessionDurationHours  The duration of the session
+     */
     private void updateModuleStudyTime(String eventTitle, Long userId, Integer newStatus,
                                        Integer oldStatus, double sessionDurationHours) {
-        // Finde Module basierend auf dem Event-Titel
-        // Annahme: Event-Titel enthält den Modulnamen oder eine Referenz darauf
+        // find modules based on user id
         List<Module> userModules = moduleRepository.findAllByUser_UserId(userId);
 
-        // Finde das passende Modul (hier einfache Implementierung - Event-Titel muss Modul-Namen enthalten)
+        // find coresponding module based on the event title. In this case, the event title is the name of the module.
+        // In a completely normalized database this should be done by an n:m-table with the event_ids to module_ids.
+        // Due to late implementation this wasn't done.
         Optional<Module> matchingModule = userModules.stream()
                 .filter(module -> eventTitle.toLowerCase().contains(module.getName().toLowerCase()) ||
                         module.getName().toLowerCase().contains(eventTitle.toLowerCase()))
@@ -192,12 +232,12 @@ public class EventController {
             Module module = matchingModule.get();
             long currentStudyTime = module.getAlreadyStudied();
 
-            // Berechne neue Studienzeit basierend auf Status-Änderung
+            // calculate new study time based on the new status and the current study time
             if (newStatus == 1 && (oldStatus == null || oldStatus == 0)) {
-                // Session wurde als abgeschlossen markiert - Zeit hinzufügen
+                // session marked as completed for the first time - add session duration to study time
                 module.setAlreadyStudied(currentStudyTime + Math.round(sessionDurationHours));
             } else if (newStatus == 0 && oldStatus == 1) {
-                // Session wurde von abgeschlossen zu nicht-abgeschlossen geändert - Zeit abziehen
+                // ssession marked as not completed - subtract session duration from study time
                 long newStudyTime = Math.max(0, currentStudyTime - Math.round(sessionDurationHours));
                 module.setAlreadyStudied(newStudyTime);
             }
@@ -206,9 +246,16 @@ public class EventController {
         }
     }
 
+    /**
+     * DELETE-API: Deletes an event by ID
+     *
+     * @param eventId: ID of the event to be deleted
+     * @return ResponseEntity containing a success message if the deletion is successful,
+     *         or a 404 status code if the event does not exist, or a 500 status code if an error occurs during the deletion
+     */
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long eventId) {
-        // Prüfe, ob das Event existiert
+        // check if event with passed ID exists
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -216,10 +263,10 @@ public class EventController {
 
         try {
             eventRepository.deleteById(eventId);
-            return ResponseEntity.ok().body("Event erfolgreich gelöscht");
+            return ResponseEntity.ok().body("Event deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Fehler beim Löschen des Events: " + e.getMessage());
+                    .body("Error: " + e.getMessage());
         }
     }
 }

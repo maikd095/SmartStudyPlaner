@@ -1,8 +1,12 @@
+// All imports incl. https://ui.shadcn.com
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+
+// All fields a module needs
 
 interface ModuleItem {
     id: number;
@@ -13,6 +17,8 @@ interface ModuleItem {
     alreadyStudied: number;
     difficulty: string;
 }
+
+// All props the popup needs
 
 interface EditModulePopupProps {
     open: boolean;
@@ -27,8 +33,10 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
     onModuleUpdated,
     module
 }) => {
+    //set initial status
     const [name, setName] = useState("");
-    const [difficulty, setDifficulty] = useState("mittel");
+    const [difficulty, setDifficulty] = useState("medium");
+
     const [hoursRequired, setHoursRequired] = useState("");
     const [deadline, setDeadline] = useState("");
     const [ects, setEcts] = useState("");
@@ -51,7 +59,8 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
     useEffect(() => {
         if (!open) {
             setName("");
-            setDifficulty("mittel");
+            setDifficulty("medium");
+
             setHoursRequired("");
             setDeadline("");
             setEcts("");
@@ -67,28 +76,33 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
         try {
             // Validation
             if (!name.trim()) {
-                alert("Modulname ist erforderlich.");
+                alert("Please enter a name");
+
                 setIsLoading(false);
                 return;
             }
 
             if (!deadline) {
-                alert("Deadline ist erforderlich.");
+                alert("Please enter a deadline");
+
                 setIsLoading(false);
                 return;
             }
 
             if (!ects || Number(ects) <= 0) {
-                alert("ECTS muss eine positive Zahl sein.");
+                alert("Please enter a valid number of ECTS");
+
                 setIsLoading(false);
                 return;
             }
 
-            if (!hoursRequired || Number(hoursRequired) <= 0) {
-                alert("Benötigte Stunden müssen eine positive Zahl sein.");
+            if (!alreadyStudied || Number(alreadyStudied) <= 0) {
+                alert("Please enter a valid number of hours");
+
                 setIsLoading(false);
                 return;
             }
+
 
             const updatedModule = {
                 name: name.trim(),
@@ -101,7 +115,9 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
 
             console.log("Updating module data:", updatedModule);
 
-            const response = await fetch(`http://localhost:8080/api/module/${module.id}`, {
+            //Update module through API-call
+            const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/module/${module.id}`, {
+
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -120,23 +136,13 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
                         errorMessage = errorText;
                     }
                 } catch (textError) {
-                    // Ignore text parsing errors
                     console.warn("Could not parse error response as text:", textError);
                 }
                 console.error("Error response:", errorMessage);
-                throw new Error(`Fehler beim Aktualisieren des Moduls: ${errorMessage}`);
+                throw new Error(`Error while updating the module: ${errorMessage}`);
             }
 
-            // Try to parse response, but don't fail if it's empty or not JSON
-            try {
-                const responseData = await response.text();
-                if (responseData) {
-                    console.log("Update response:", responseData);
-                }
-            } catch (parseError) {
-                // Ignore parsing errors - the update was successful based on status code
-                console.log("Response parsing skipped (likely empty response)");
-            }
+
 
             console.log("Module updated successfully");
 
@@ -144,14 +150,17 @@ const EditModulePopup: React.FC<EditModulePopupProps> = ({
             onOpenChange(false);
 
         } catch (error) {
-            console.error("Fehler beim Aktualisieren des Moduls:", error);
-            alert("Fehler beim Aktualisieren des Moduls. Bitte versuchen Sie es erneut.");
+            console.error("Error while updating the module:", error);
+            alert("Error while updating the module");
+
         } finally {
             setIsLoading(false);
         }
     };
 
     if (!module) return null;
+
+    //Layout of popup
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

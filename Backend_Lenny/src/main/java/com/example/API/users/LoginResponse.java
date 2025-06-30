@@ -7,10 +7,8 @@ public class LoginResponse {
     private String lastName;
     private String token;
 
-    public LoginResponse() {
-    }
 
-    // Konstruktor mit Parametern
+    // constructor
     public LoginResponse(Long userId, String email, String firstName, String lastName, String token) {
         this.userId = userId;
         this.email = email;

@@ -1,3 +1,4 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,10 +21,12 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegisterSuccess, onSw
         e.preventDefault();
         setError("");
 
+        // Needed fields for a new user
         const newUser = { email, username, password, firstName, lastName };
 
         try {
-            const response = await fetch("http://localhost:8080/api/users/register", {
+            // Register API-Call
+            const response = await fetch("https://study-planner-online-275553834411.europe-west3.run.app/api/users/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -35,14 +38,15 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegisterSuccess, onSw
                 onRegisterSuccess();
             } else {
                 const errorText = await response.text();
-                setError(errorText || "Registrierung fehlgeschlagen");
+                setError(errorText || "Registration failed");
             }
         } catch (err) {
             console.error(err);
-            setError("Netzwerkfehler. Bitte versuchen Sie es später erneut.");
+            setError("Backend Error!");
         }
     };
 
+    //Layout
     return (
         <div className="flex items-center justify-center h-screen bg-[#f4f4f7] font-sans">
             <div className="bg-white p-8 rounded-xl shadow-md w-96">

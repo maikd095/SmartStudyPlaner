@@ -1,3 +1,4 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -5,12 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, Calendar, CheckSquare } from "lucide-react";
 
+
+//All props it needs
 interface EventPopupProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onEventCreated?: () => void;
 }
 
+//
 const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCreated }) => {
     const [title, setTitle] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -20,10 +24,9 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
     const [isFullDay, setIsFullDay] = useState(false);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-    // Standardwerte beim Öffnen
+    // Initial values
     useEffect(() => {
         if (open) {
-            // Aktuelles Datum als Standardwert
             const today = new Date().toISOString().split('T')[0];
             setStartDate(today);
             setEndDate(today);
@@ -34,7 +37,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
         }
     }, [open]);
 
-    // Endzeit automatisch anpassen wenn Startzeit geändert wird
+    // Adjust end time when the start time changes
     useEffect(() => {
         if (startTime) {
             const [hours, minutes] = startTime.split(':').map(Number);
@@ -46,49 +49,49 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
         }
     }, [startTime]);
 
-    // Enddatum automatisch anpassen wenn Startdatum geändert wird
+    // Adjust the end date when the start date changes
     useEffect(() => {
         if (startDate && (!endDate || new Date(endDate) < new Date(startDate))) {
             setEndDate(startDate);
         }
     }, [startDate]);
 
-    // Validierung der Eingaben
+    // Validation of  user input
     const validateForm = () => {
         const errors: { [key: string]: string } = {};
 
         if (!title.trim()) {
-            errors.title = "Bitte geben Sie einen Titel ein.";
+            errors.title = "Please enter a title";
         }
 
         if (!startDate) {
-            errors.startDate = "Bitte wählen Sie ein Startdatum.";
+            errors.startDate = "Please choose a start date.";
         }
 
         if (!endDate) {
-            errors.endDate = "Bitte wählen Sie ein Enddatum.";
+            errors.endDate = "Please choose an end date";
         }
 
         if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-            errors.dateRange = "Das Startdatum muss vor oder am Enddatum liegen.";
+            errors.dateRange = "The start date has to be before the end date!";
         }
 
         if (!isFullDay) {
             if (!startTime) {
-                errors.startTime = "Bitte wählen Sie eine Startzeit.";
+                errors.startTime = "Please choose a start time";
             }
 
             if (!endTime) {
-                errors.endTime = "Bitte wählen Sie eine Endzeit.";
+                errors.endTime = "Please choose an end time";
             }
 
-            // Überprüfung der Zeiten nur wenn es ein eintägiges Event ist
+            // Check times only for single-day events
             if (startDate && endDate && startDate === endDate && startTime && endTime) {
                 const [startHour, startMinute] = startTime.split(':').map(Number);
                 const [endHour, endMinute] = endTime.split(':').map(Number);
 
                 if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
-                    errors.timeRange = "Die Startzeit muss vor der Endzeit liegen.";
+                    errors.timeRange = "The start time hast to be before the end time!";
                 }
             }
         }
@@ -98,30 +101,32 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
     };
 
     const handleCreateEvent = () => {
-        console.log("Aktuelle Formularwerte:", { title, startDate, endDate, startTime, endTime, isFullDay });
+
+        // show error message when one validation check is false
 
         if (!validateForm()) {
             const errorMessage = Object.values(formErrors).join("\n");
-            alert(errorMessage || "Bitte füllen Sie alle Felder korrekt aus.");
+            alert(errorMessage || "Please fill in all fields correctly");
             return;
         }
 
-        // Nutzer-ID aus dem localStorage holen
+        // get user-ID from local storage
         const storedUser = localStorage.getItem("user");
         if (!storedUser) {
-            alert("Fehlende Nutzerinformationen. Bitte erneut einloggen.");
+            alert("Log in again!");
             return;
         }
 
         const user = JSON.parse(storedUser);
 
-        // Prüfe ob userId vorhanden ist
+        // Check if user-ID is known
         const userId = user.userId || user.id;
         if (!userId) {
-            alert("Keine gültige User-ID gefunden. Bitte erneut einloggen.");
+            alert("No valid user-ID");
             return;
         }
 
+        // Fields of a newEvent
         const newEvent = {
             title: title.trim(),
             startDate: startDate,
@@ -130,13 +135,12 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
             endTime: isFullDay ? null : endTime,
             isFullDay: isFullDay,
             user: {
-                userId: userId  // <- Korrigiert: userId statt id
+                userId: userId
             }
         };
 
-        console.log("Sende Event an Backend:", newEvent);
-
-        fetch("http://localhost:8080/api/events", {
+        // Create event with API-call
+        fetch("https://study-planner-online-275553834411.europe-west3.run.app/api/events", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(newEvent)
@@ -146,16 +150,16 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                     return response.text().then(text => {
                         try {
                             const json = JSON.parse(text);
-                            throw new Error(json.error || text || `Server-Fehler: ${response.status}`);
+                            throw new Error(json.error || text || `Server-Error: ${response.status}`);
                         } catch (e) {
-                            throw new Error(text || `Server-Fehler: ${response.status}`);
+                            throw new Error(text || `Server-Error: ${response.status}`);
                         }
                     });
                 }
                 return response.json();
             })
             .then(data => {
-                console.log("Event erfolgreich erstellt:", data);
+                console.log("Event created successfully", data);
                 setTitle("");
                 setStartDate("");
                 setEndDate("");
@@ -165,11 +169,12 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                 if (onEventCreated) onEventCreated();
             })
             .catch(error => {
-                console.error("Fehler beim Erstellen des Events:", error);
+                console.error("Error while creating event:", error);
                 alert(error.message);
             });
     };
 
+    //Layout of popup
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="bg-white w-full max-w-md p-0 rounded-xl">
@@ -245,40 +250,36 @@ const EventPopup: React.FC<EventPopupProps> = ({ open, onOpenChange, onEventCrea
                                 </label>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-                                    <div className="relative">
-                                        <input
-                                            type="time"
-                                            className={`w-full pl-10 py-2 border rounded-md ${formErrors.startTime ? "border-red-500" : "border-gray-300"}`}
-                                            value={startTime}
-                                            onChange={(e) => {
-                                                console.log("Start time:", e.target.value);
-                                                setStartTime(e.target.value);
-                                            }}
-                                        />
-                                        <Clock size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                                        {formErrors.startTime && <p className="text-xs text-red-500 mt-1">{formErrors.startTime}</p>}
+                            {!isFullDay && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                                        <div className="relative">
+                                            <input
+                                                type="time"
+                                                className={`w-full pl-10 py-2 border rounded-md ${formErrors.startTime ? "border-red-500" : "border-gray-300"}`}
+                                                value={startTime}
+                                                onChange={(e) => setStartTime(e.target.value)}
+                                            />
+                                            <Clock size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                                            {formErrors.startTime && <p className="text-xs text-red-500 mt-1">{formErrors.startTime}</p>}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                                        <div className="relative">
+                                            <input
+                                                type="time"
+                                                className={`w-full pl-10 py-2 border rounded-md ${formErrors.endTime ? "border-red-500" : "border-gray-300"}`}
+                                                value={endTime}
+                                                onChange={(e) => setEndTime(e.target.value)}
+                                            />
+                                            <Clock size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                                            {formErrors.endTime && <p className="text-xs text-red-500 mt-1">{formErrors.endTime}</p>}
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-                                    <div className="relative">
-                                        <input
-                                            type="time"
-                                            className={`w-full pl-10 py-2 border rounded-md ${formErrors.endTime ? "border-red-500" : "border-gray-300"}`}
-                                            value={endTime}
-                                            onChange={(e) => {
-                                                console.log("End time:", e.target.value);
-                                                setEndTime(e.target.value);
-                                            }}
-                                        />
-                                        <Clock size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                                        {formErrors.endTime && <p className="text-xs text-red-500 mt-1">{formErrors.endTime}</p>}
-                                    </div>
-                                </div>
-                            </div>
+                            )}
                             {formErrors.timeRange && (
                                 <p className="text-xs text-red-500">{formErrors.timeRange}</p>
                             )}

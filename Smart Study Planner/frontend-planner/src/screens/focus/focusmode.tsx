@@ -1,3 +1,4 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ interface FocusModeProps {
     onPageChange: (page: AppPage) => void;
 }
 
+// Initilize fields
 const FocusMode: React.FC<FocusModeProps> = ({ onLogout, onPageChange }) => {
     const [activePage, setActivePage] = useState<SidebarPage>("focus");
     const [sessionLength, setSessionLength] = useState(55);
@@ -18,32 +20,19 @@ const FocusMode: React.FC<FocusModeProps> = ({ onLogout, onPageChange }) => {
     const [isPaused, setIsPaused] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const [suggestions, setSuggestions] = useState<string[]>([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-
-    // Mock session data for autocomplete
-    const todaysSessions = [
-        "Study Java",
-        "Study Python",
-        "Study React",
-        "Study Mathematics",
-        "Read Documentation",
-        "Code Review",
-        "Planning Session"
-    ];
 
     // Fullscreen functionality
     const enterFullscreen = async () => {
         try {
-            if (containerRef.current && containerRef.current.requestFullscreen) {
-                await containerRef.current.requestFullscreen();
+            if (document.documentElement && document.documentElement.requestFullscreen) {
+                await document.documentElement.requestFullscreen();
                 setIsFullscreen(true);
             }
         } catch (error) {
             console.log("Fullscreen not supported or blocked");
-            setIsFullscreen(true); // Fallback to CSS fullscreen
+            setIsFullscreen(true);
         }
     };
 
@@ -63,20 +52,6 @@ const FocusMode: React.FC<FocusModeProps> = ({ onLogout, onPageChange }) => {
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
     }, []);
-
-    // Session name autocomplete
-    const handleSessionNameChange = (value: string) => {
-        setSessionName(value);
-        if (value.length > 0) {
-            const filtered = todaysSessions.filter(session =>
-                session.toLowerCase().includes(value.toLowerCase())
-            );
-            setSuggestions(filtered);
-            setShowSuggestions(filtered.length > 0);
-        } else {
-            setShowSuggestions(false);
-        }
-    };
 
     // Timer logic
     useEffect(() => {
@@ -132,6 +107,7 @@ const FocusMode: React.FC<FocusModeProps> = ({ onLogout, onPageChange }) => {
     const growthProgress = isActive ? 1 - (timeLeft / (sessionLength * 60)) : 0;
 
     // Plant component with growth animation
+    // The growth animation and implementation into the code was made by AI (claude.ai).
     const PlantComponent: React.FC<{ progress: number; isTimer?: boolean }> = ({ progress, isTimer = false }) => {
         const height = isTimer ? 300 : 150;
         const scale = isTimer ? 1.5 : 1;
@@ -237,7 +213,6 @@ const FocusMode: React.FC<FocusModeProps> = ({ onLogout, onPageChange }) => {
         return (
             <div ref={containerRef} className="fixed inset-0 bg-gradient-to-br from-green-50 to-blue-50 z-50 overflow-hidden">
                 <div className="flex flex-col items-center justify-center h-full relative p-8">
-                    {/* Exit fullscreen button */}
                     <Button
                         onClick={exitFullscreen}
                         variant="ghost"
@@ -275,7 +250,7 @@ const FocusMode: React.FC<FocusModeProps> = ({ onLogout, onPageChange }) => {
                             onClick={finishSession}
                             variant="destructive"
                             size="lg"
-                            className="px-8 py-4 text-xl"
+                            className="bg-[#002366] px-8 py-4 text-xl"
                         >
                             Finish
                         </Button>
@@ -329,37 +304,17 @@ const FocusMode: React.FC<FocusModeProps> = ({ onLogout, onPageChange }) => {
                                         />
                                     </div>
 
-                                    <div className="relative">
+                                    <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Session Name
                                         </label>
                                         <input
                                             type="text"
                                             value={sessionName}
-                                            onChange={(e) => handleSessionNameChange(e.target.value)}
-                                            onFocus={() => sessionName.length > 0 && setShowSuggestions(true)}
-                                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                            onChange={(e) => setSessionName(e.target.value)}
                                             className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                             placeholder="Enter session name"
                                         />
-
-                                        {/* Autocomplete suggestions */}
-                                        {showSuggestions && suggestions.length > 0 && (
-                                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                                                {suggestions.map((suggestion, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
-                                                        onClick={() => {
-                                                            setSessionName(suggestion);
-                                                            setShowSuggestions(false);
-                                                        }}
-                                                    >
-                                                        {suggestion}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 

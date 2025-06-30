@@ -1,3 +1,4 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ interface SignInScreenProps {
   onSwitchToRegister: () => void;
 }
 
+// Initialize values
 const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin, onSwitchToRegister }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +20,8 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin, onSwitchToRegister
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8080/api/users/login", {
+      // Verify user credentials with API-call
+      const response = await fetch("https://study-planner-online-275553834411.europe-west3.run.app/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,14 +42,16 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin, onSwitchToRegister
         onLogin();
       } else {
         const errorData = await response.text();
-        setError(errorData || "Anmeldung fehlgeschlagen");
+        setError(errorData || "Log in failed");
       }
     } catch (err) {
-      setError("Netzwerkfehler. Bitte versuchen Sie es später erneut.");
+      setError("Error with backend");
       console.error(err);
     }
   };
 
+
+  // Layout
   return (
     <div className="flex items-center justify-center h-screen bg-[#f4f4f7] font-sans">
       <div className="bg-white p-8 rounded-xl shadow-md w-96">
@@ -91,7 +96,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onLogin, onSwitchToRegister
           </Button>
 
           <div className="text-sm text-center pt-2">
-            Dont' have an account? <button type="button" className="text-[#002366] underline" onClick={onSwitchToRegister}>Register</button>
+            Don't have an account? <button type="button" className="text-[#002366] underline" onClick={onSwitchToRegister}>Register</button>
           </div>
         </form>
       </div>

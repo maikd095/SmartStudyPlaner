@@ -1,3 +1,4 @@
+// All imports incl. https://ui.shadcn.com
 import React, { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,9 +14,11 @@ interface CalendarViewProps {
   onLogout: () => void;
   onPageChange?: (page: AppPage) => void;
 }
-
+//View types of calendar
 type ViewType = 'day' | 'week' | 'month';
 
+
+// Initialize parameters
 const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) => {
   const [activePage, setActivePage] = useState<SidebarPage>("calendar");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -27,25 +30,24 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [viewType, setViewType] = useState<ViewType>('month');
   const [isRescheduling, setIsRescheduling] = useState(false);
-  // Zusätzlicher State für Force-Update
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // Get userID
   const fetchEvents = useCallback(async (forceUpdate = false) => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return;
     const userId = JSON.parse(storedUser).id;
 
     try {
-      // Cache-busting durch Timestamp
       const timestamp = new Date().getTime();
-      const response = await fetch(`http://localhost:8080/api/events?userId=${userId}&t=${timestamp}`);
+      const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/events?userId=${userId}&t=${timestamp}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Raw data from backend:', data);
 
+      //Map fields from backend
       const converted: CalendarEvent[] = data.map((event: any) => ({
         id: String(event.id),
         title: event.title,
@@ -57,16 +59,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
         isFullDay: event.isFullDay
       }));
 
-      console.log('Converted events:', converted);
 
-      // Events setzen und Force-Update wenn gewünscht
       setEvents(converted);
 
       if (forceUpdate) {
         setRefreshKey(prev => prev + 1);
       }
     } catch (error) {
-      console.error("Fehler beim Laden der Events:", error);
+      console.error("Error while loading event:", error);
     }
   }, []);
 
@@ -79,12 +79,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
     if (onPageChange) onPageChange(page as AppPage);
   };
 
+  // When clicking on event
   const handleEventClick = (event: CalendarEvent, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering day selection
+    e.stopPropagation();
     setSelectedEvent(event);
     setIsEditEventPopupOpen(true);
   };
 
+  // Reschesule button
   const handleReschedule = async () => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) return;
@@ -95,33 +97,29 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
     try {
       console.log("Starting rescheduling process...");
 
-      // API Call zum Schedulen der Learning Sessions
-      const response = await fetch(`http://localhost:8080/api/planning/user/${userId}`, {
+      // API call for rescheduling
+      const response = await fetch(`https://study-planner-online-275553834411.europe-west3.run.app/api/planning/user/${userId}`, {
         method: "POST"
       });
 
       if (response.ok) {
         console.log("Learning sessions scheduled successfully");
 
-        // Kurze Pause um sicherzustellen, dass Backend fertig ist
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Events mit Force-Update neu laden
+        // detch events after rescheduling
         await fetchEvents(true);
-        console.log("Events successfully reloaded after rescheduling");
 
-        // Zusätzliches Force-Update der Komponente
         setRefreshKey(prev => prev + 1);
         setSelectedDate(new Date());
       } else {
-        console.error("Failed to schedule learning sessions");
         const errorText = await response.text();
         console.error("Error details:", errorText);
       }
     } catch (error) {
       console.error("Reschedule error:", error);
     } finally {
-      // Loading beenden nach API-Antwort und Event-Reload
+      // End Loading after API-call is finished
       setIsRescheduling(false);
     }
   };
@@ -134,6 +132,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
     await fetchEvents(true);
   }, [fetchEvents]);
 
+  // Button in the right top corner
   const goToPrevious = () => {
     const newDate = new Date(currentDate);
     if (viewType === 'day') {
@@ -167,12 +166,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
+
+  // Calendar generation
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const daysInMonth = getDaysInMonth(year, month);
     const firstDayOfMonth = getFirstDayOfMonth(year, month);
-    // Adjust for Monday start (0 = Sunday, 1 = Monday)
     const adjustedFirstDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
     const days: (Date | null)[] = [];
 
@@ -185,7 +185,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   const getWeekDays = () => {
     const start = new Date(currentDate);
     const day = start.getDay();
-    // Adjust to start on Monday (0 = Sunday, 1 = Monday)
     const diff = start.getDate() - day + (day === 0 ? -6 : 1);
     const weekStart = new Date(start.setDate(diff));
 
@@ -219,8 +218,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   const isEventOnDay = (event: CalendarEvent, date: Date) => {
     const startDate = new Date(event.startDate);
     const endDate = new Date(event.endDate);
-
-    // Normalize dates to compare only the date part, not time
     const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const eventStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
     const eventEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
@@ -232,8 +229,24 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
     events.some(event => isEventOnDay(event, date));
 
   const getDayEvents = (date: Date) =>
-    events.filter(event => isEventOnDay(event, date));
+    events.filter(event => isEventOnDay(event, date))
+      .sort((a, b) => {
+        // Show ful day events on top
+        if (a.isFullDay && !b.isFullDay) return -1;
+        if (!a.isFullDay && b.isFullDay) return 1;
 
+        // Sort for time to be displayed
+        if (!a.isFullDay && !b.isFullDay) {
+          const timeA = a.start_time || '00:00';
+          const timeB = b.start_time || '00:00';
+          return timeA.localeCompare(timeB);
+        }
+
+        // Sort after title when there are mltiple full day events
+        return a.title.localeCompare(b.title);
+      });
+
+  // Header titles
   const formatDateHeader = () => {
     if (viewType === 'day') {
       return currentDate.toLocaleDateString('de-DE', {
@@ -276,16 +289,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
         ))}
       </div>
 
-      {/* Zeitraster */}
       <div className="max-h-[600px] overflow-y-auto">
         {timeSlots.map((time, timeIndex) => (
           <div key={time} className={`grid ${viewType === 'day' ? 'grid-cols-2' : 'grid-cols-8'} border-b border-gray-100 hover:bg-gray-50`}>
-            {/* Zeit-Spalte */}
+            {/* Time column*/}
             <div className="p-3 text-xs text-gray-500 border-r border-gray-200 bg-gray-50 flex items-start w-20 flex-shrink-0">
               {time}
             </div>
 
-            {/* Tag-Spalten */}
+            {/* day column */}
             {days.map((day, dayIndex) => (
               <div
                 key={dayIndex}
@@ -312,7 +324,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                     const height = event.isFullDay ? 40 : Math.max((durationInMinutes / 60) * 60, 20);
                     const topOffset = event.isFullDay ? 10 : (startMinute / 60) * 60;
 
-                    // Check if event spans multiple days
+                    // Check if event is on multiple days
                     const eventStartDate = new Date(event.startDate);
                     const eventEndDate = new Date(event.endDate);
                     const isMultiDay = !isSameDay(eventStartDate, eventEndDate);
@@ -353,6 +365,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
     </Card>
   );
 
+  // Month view
   const renderMonthView = () => {
     const calendarDays = generateCalendarDays();
     const selectedDayEvents = getDayEvents(selectedDate);
@@ -412,8 +425,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
           </div>
         </Card>
 
-        <Card className="bg-white border border-gray-300 rounded-2xl">
-          <div className="p-4 border-b border-gray-200">
+        <Card className="bg-white border border-gray-300 rounded-2xl flex flex-col h-full">
+          <div className="p-4 border-b border-gray-200 flex-shrink-0">
             <h3 className="font-bold">
               {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </h3>
@@ -459,16 +472,56 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
               </div>
             )}
           </div>
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 space-y-3 flex-shrink-0">
             <Button className="w-full bg-[#002366] hover:bg-[#001a4d] text-white" onClick={() => setIsEventPopupOpen(true)}>
               <Plus size={16} className="mr-2" /> Add Event
             </Button>
+
+            {/* Import calendar button for monthly view */}
+            <input
+              type="file"
+              accept=".ics"
+              id="calendar-import-monthly"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                const storedUser = localStorage.getItem("user");
+                if (!file || !storedUser) return;
+
+                const userId = JSON.parse(storedUser).id;
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("userId", userId);
+
+                try {
+                  await fetch("https://study-planner-online-275553834411.europe-west3.run.app/api/events/import", {
+                    method: "POST",
+                    body: formData
+                  });
+                  await handleEventCreated();
+                } catch (error) {
+                  console.error("Failed import:", error);
+                }
+              }}
+            />
+            <label htmlFor="calendar-import-monthly" className="w-full">
+              <Button
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white"
+                asChild
+              >
+                <div className="flex items-center justify-center">
+                  <span className="mr-2">📥</span> Import Calendar
+                </div>
+              </Button>
+            </label>
           </div>
         </Card>
       </div>
     );
   };
 
+  // Layout
+  // Due to complex design, the calendar design was made with help of AI (claude.ai)
   return (
     <div className="flex h-screen font-sans bg-[#f2f3f7]">
       <AppSideBar
@@ -534,10 +587,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
         {viewType === 'week' && renderTimeBasedView(getWeekDays())}
         {viewType === 'day' && renderTimeBasedView([currentDate])}
 
-        {/* Add Event Button for Day/Week Views */}
+        {/* Add event button for day/week views */}
         {viewType !== 'month' && (
           <div className="fixed bottom-8 right-8 flex flex-col items-end space-y-3">
-            {/* Add Event Button */}
+            {/* Add event button */}
             <Button
               className="bg-[#002366] hover:bg-[#001a4d] text-white rounded-full w-14 h-14 shadow-lg"
               onClick={() => setIsEventPopupOpen(true)}
@@ -545,7 +598,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
               <Plus size={24} />
             </Button>
 
-            {/* Import Calendar Button */}
+            {/* Import calendar button */}
             <input
               type="file"
               accept=".ics"
@@ -562,13 +615,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
                 formData.append("userId", userId);
 
                 try {
-                  await fetch("http://localhost:8080/api/events/import", {
+                  await fetch("https://study-planner-online-275553834411.europe-west3.run.app/api/events/import", {
                     method: "POST",
                     body: formData
                   });
-                  await handleEventCreated(); // Verwende die neue Callback-Funktion
+                  await handleEventCreated();
                 } catch (error) {
-                  console.error("Import fehlgeschlagen:", error);
+                  console.error("Failed import:", error);
                 }
               }}
             />
@@ -584,7 +637,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
         )}
       </div>
 
-      {/* Loading Overlay */}
+      {/* Loading overlay */}
       <LoadingOverlay
         isVisible={isRescheduling}
         message="Optimizing your study schedule..."
@@ -610,6 +663,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onLogout, onPageChange }) =
   );
 };
 
+// Needed fields/columns for an event
 interface CalendarEvent {
   id: string;
   title: string;

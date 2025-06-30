@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="studyplanner_smart@mysql-studyplanner.alwaysdata.net" uuid="8b6be62b-ded2-4cac-8659-102b87aea809">
-      <driver-ref>mariadb</driver-ref>
+    <data-source source="LOCAL" name="studyplanner_smart@mysql-studyplanner.alwaysdata.net" uuid="480d80ab-a8ba-483a-9588-be8f0b60c213">
+      <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
       <remarks>$PROJECT_DIR$/Backend_Lenny/src/main/resources/application.properties</remarks>
-      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mariadb://mysql-studyplanner.alwaysdata.net:3306/studyplanner_smart</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
