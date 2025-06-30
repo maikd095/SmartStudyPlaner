@@ -17,11 +17,23 @@ public class ModuleController {
     private final UserRepository userRepository;
     private final ModuleRepository moduleRepository;
 
+    // constructor
     public ModuleController(UserRepository userRepository, ModuleRepository moduleRepository) {
         this.userRepository = userRepository;
         this.moduleRepository = moduleRepository;
     }
 
+    /**
+     * INSERT-API: Creates a new module for a user
+     * Validates that the user exists and saves the new module to the repository.
+     *
+     * @param module the Module object containing module details to be created.
+     *               The module must have a valid user object with a userId set.
+     * @return a ResponseEntity containing:
+     *         - HTTP status 200 and the created module if successful
+     *         - HTTP status 400 with an error message if the user is not provided or does not exist
+     *         - HTTP status 500 with an error message if an unexpected error occurs during processing
+     */
     @PostMapping
     public ResponseEntity<?> createModule(@RequestBody Module module){
         // validate if a user is set
@@ -29,7 +41,7 @@ public class ModuleController {
             return ResponseEntity.badRequest().body("User-ID is needed");
         }
 
-        // Check if user exists
+        // checks if user exists
         Optional<User> userOpt = userRepository.findById(module.getUser().getUserId());
         if (!userOpt.isPresent()) {
             return ResponseEntity.badRequest().body("User with ID " + module.getUser().getUserId() + " not found");
@@ -46,6 +58,11 @@ public class ModuleController {
         }
     }
 
+    /**
+     * GET-API: Returns all modules for a user
+     * @param userId: userID of user for which modules should be returned.
+     * @return: ResponseEntity containing a list of modules or an error message if the query failed
+     */
     @GetMapping
     public ResponseEntity<List<Module>> getModulesForUser(@RequestParam Long userId) {
         Optional<User> user = userRepository.findById(userId);
@@ -56,6 +73,12 @@ public class ModuleController {
         return ResponseEntity.ok(modules);
     }
 
+    /**
+     * UPDATE-API: Updates an existing module
+     * @param moduleId: ID of the module to be updated.
+     * @param moduleInput: Module object containing the new module data.
+     * @return: ResponseEntity containing the updated module if successful
+     */
     @PutMapping("/{moduleId}")
     public ResponseEntity<?> updateModule(@PathVariable Long moduleId, @RequestBody Module moduleInput) {
         // Check if module exists
@@ -103,7 +126,7 @@ public class ModuleController {
         try {
             moduleRepository.save(existingModule);
 
-            // Return success message instead of the module object to avoid serialization issues
+
             return ResponseEntity.ok().body("Module updated successfully");
 
         } catch (Exception e) {

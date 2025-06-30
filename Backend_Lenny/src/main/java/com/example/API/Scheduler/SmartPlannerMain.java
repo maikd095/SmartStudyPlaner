@@ -12,7 +12,7 @@ import org.optaplanner.core.config.solver.SolverConfig;
 import org.optaplanner.core.config.solver.termination.TerminationConfig;
 
 public class SmartPlannerMain {
-	public static void main(String[] args) { // Main for testing; Left in for progress verification
+	public static void main(String[] args) { // Main + other following methods for testing; Left in for progress verification
 		List<TaskForOptimizer> tasks = loadTasks();
 		List<FixedEvent> events = loadFixedEvents();
 		List<LocalDate> dateRange = generateDateRange(tasks);
@@ -47,19 +47,25 @@ public class SmartPlannerMain {
 		}
 	}
 
+	/**
+	 * Builds a Solver instance configured for optimizing a LearningSchedule.
+	 *
+	 * @return a Solver for solving and generating optimized LearningSchedule solutions.
+	 */
 	public static Solver<LearningSchedule> buildSolver() {
 		SolverConfig solverConfig = new SolverConfig()
 				.withSolutionClass(LearningSchedule.class)
 				.withEntityClasses(SessionForOptimizer.class)
 				.withConstraintProviderClass(Constraints.class);
 
-		// Verbesserte Termination-Konfiguration
+		// termination config
 		TerminationConfig terminationConfig = new TerminationConfig()
-				.withSpentLimit(Duration.ofSeconds(30)) // Längere Laufzeit
-				.withUnimprovedSpentLimit(Duration.ofSeconds(10)); // Stoppe wenn 10s keine Verbesserung
+				.withSpentLimit(Duration.ofSeconds(30))  // limit duration to 30 seconds
+				.withUnimprovedSpentLimit(Duration.ofSeconds(5)); // Stop after 5 seconds without improvement
 
 		solverConfig.setTerminationConfig(terminationConfig);
 
+		// Create solver with improved configuration
 		SolverFactory<LearningSchedule> solverFactory = SolverFactory.create(solverConfig);
 		return solverFactory.buildSolver();
 	}
@@ -91,62 +97,76 @@ public class SmartPlannerMain {
 		}
 		return dates;
 	}
-
+	// method for the testing; Overriding followed
 	public static List<LocalTime> generateTimeRange() {
-		// Fallback für bestehende Aufrufe
 		return generateTimeRange(LocalTime.of(8, 0), LocalTime.of(22, 0));
 	}
 
+	/**
+	 * Generates a list of time slots at 30-minute intervals within the specified start and end time range.
+	 * If null => default values of 08:00 and 22:00 are used
+	 *
+	 * @param startTime the start time for generating the time range
+	 * @param endTime the end time for generating the time range
+	 * @return a list of LocalTime objects representing time slots at 30-minute intervals within the specified range
+	 */
 	public static List<LocalTime> generateTimeRange(LocalTime startTime, LocalTime endTime) {
 		List<LocalTime> times = new ArrayList<>();
 
 		// Checks when no preferred times are given
 		if (startTime == null) {
 			startTime = LocalTime.of(8, 0);
-			System.out.println("Warnung: Keine bevorzugte Startzeit gefunden, verwende 08:00");
+			System.out.println("Using default: 08:00");
 		}
 		if (endTime == null) {
 			endTime = LocalTime.of(22, 0);
-			System.out.println("Warnung: Keine bevorzugte Endzeit gefunden, verwende 22:00");
+			System.out.println("Using default: 22:00");
 		}
 
-		// Validierung: Startzeit muss vor Endzeit liegen
+		// validate start and end time
 		if (startTime.isAfter(endTime)) {
-			System.out.println("Warnung: Startzeit liegt nach Endzeit. Verwende Standard-Zeiten.");
+			System.out.println("Using standart times.");
 			startTime = LocalTime.of(8, 0);
 			endTime = LocalTime.of(22, 0);
 		}
 
-		System.out.println("Generiere Zeitslots von " + startTime + " bis " + endTime);
+		System.out.println("Generating timeslots from " + startTime + " to " + endTime);
 
 		LocalTime currentTime = startTime;
 		while (currentTime.isBefore(endTime)) {
 			times.add(currentTime);
-			currentTime = currentTime.plusMinutes(30); // 30-Minuten-Schritte
+			currentTime = currentTime.plusMinutes(30); // 30-minutes interval
 		}
 
-		System.out.println("Generierte " + times.size() + " Zeitslots");
+		System.out.println("Generated " + times.size() + " timeslots");
 		return times;
 	}
 
+	/**
+	 * Generates a list of sessions based on the tasks provided. Each task is distributed into sessions
+	 * based on its session count
+	 *
+	 * @param taskList list of tasks for which sessions must be generated
+	 * @return a list of SessionForOptimizer objects representing generated sessions for the tasks
+	 */
 	public static List<SessionForOptimizer> generateSessions(List<TaskForOptimizer> taskList) {
 		List<SessionForOptimizer> sessions = new ArrayList<>();
 		long idCounter = 0;
 
-		// Erstelle eine Liste mit allen Tasks und ihren verbleibenden Sessions
+		// create a list with all tasks
 		List<TaskSessionTracker> trackers = new ArrayList<>();
 		for (TaskForOptimizer task : taskList) {
 			int sessionCount = task.getRecommendedSessionCount();
-			System.out.println("Task: " + task.getName() + " benötigt " + sessionCount + " Sessions");
+			System.out.println("Task: " + task.getName() + " needs " + sessionCount + " sessions");
 			trackers.add(new TaskSessionTracker(task, sessionCount));
 		}
 
-		// Gleichmäßige Verteilung: Rotiere durch alle Tasks
+		// even distribute the sessions among the tasks based on the session count
 		boolean hasRemainingSessions = true;
 		while (hasRemainingSessions) {
 			hasRemainingSessions = false;
 
-			// Gehe durch alle Tasks und erstelle jeweils eine Session
+			// go through all tasks and distribute sessions if there are remaining sessions left
 			for (TaskSessionTracker tracker : trackers) {
 				if (tracker.hasRemainingSessions()) {
 					SessionForOptimizer session = new SessionForOptimizer(tracker.getTask());
@@ -156,17 +176,16 @@ public class SmartPlannerMain {
 					tracker.decrementSessions();
 					hasRemainingSessions = true;
 
-					System.out.println("Session " + idCounter + " erstellt für: " + tracker.getTask().getName() +
-							" (noch " + tracker.getRemainingSessions() + " Sessions übrig)");
+
 				}
 			}
 		}
 
-		System.out.println("Insgesamt " + sessions.size() + " Sessions erstellt mit gleichmäßiger Verteilung");
+		System.out.println("Created " + sessions.size() + " sessions");
 		return sessions;
 	}
 
-	// Hilfsklasse für das Tracking der Sessions pro Task
+	// helper class for tracking the number of sessions for each task and checking if there are remaining sessions left
 	private static class TaskSessionTracker {
 		private final TaskForOptimizer task;
 		private int remainingSessions;
@@ -193,6 +212,7 @@ public class SmartPlannerMain {
 		}
 	}
 
+	// find the latest deadline for all tasks
 	public static LocalDate findLatestDeadline(List<TaskForOptimizer> tasks) {
 		return tasks.stream()
 				.map(TaskForOptimizer::getDeadline)

@@ -7,9 +7,8 @@ public class LoginResponse {
     private String lastName;
     private String token;
 
-    public LoginResponse() {
-    }
 
+    // constructor
     public LoginResponse(Long userId, String email, String firstName, String lastName, String token) {
         this.userId = userId;
         this.email = email;
@@ -18,7 +17,7 @@ public class LoginResponse {
         this.token = token;
     }
 
-    // getters and setters
+    // Getter und Setter
     public Long getUserId() {
         return userId;
     }
